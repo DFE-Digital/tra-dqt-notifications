@@ -35,3 +35,9 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release
       working-directory: DqtNotifications
+
+    - name: Tests
+      uses: ./.github/workflows/actions/test
+      with:
+        test_project_path: DqtNotifications/tests/DqtNotifications.ReportingDbListener.Tests
+        report_name: "Test results"
