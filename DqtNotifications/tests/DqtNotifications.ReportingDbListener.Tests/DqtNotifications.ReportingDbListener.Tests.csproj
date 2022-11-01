@@ -25,4 +25,10 @@
     <ProjectReference Include="..\..\src\DqtNotifications.ReportingDbListener\DqtNotifications.ReportingDbListener.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="SampleMessages\**\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
