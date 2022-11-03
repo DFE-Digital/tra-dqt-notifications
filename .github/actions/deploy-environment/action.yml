@@ -1,0 +1,97 @@
+name: Deploy to Azure
+
+inputs:
+  app_root:
+    description: The root folder for the application being deployed
+    required: true
+  azure_credentials:
+    description: JSON object containing a service principal that can read from Azure Key Vault
+    required: true
+  environment_name:
+    description: The name of the environment
+    required: true
+
+outputs:
+  environment_url:
+    description: The base URL for the deployed environment
+    value: ${{ steps.terraform.outputs.url }}
+
+runs:
+  using: composite
+
+  steps:
+    # Extract configuration from tfvars
+    - id: config
+      run: |
+        KEY_VAULT_NAME=$(jq -r '.key_vault_name' $TFVARS)
+        RESOURCE_GROUP_NAME=$(jq -r '.resource_group_name' $TFVARS)
+        RESOURCE_PREFIX=$(jq -r '.resource_prefix' $TFVARS)
+        STORAGE_ACCOUNT_NAME=$(jq -r '.storage_account_name' $TFVARS)
+        TERRAFORM_VERSION=$(awk '/{/{f=/^terraform/;next}f' terraform.tf | grep -o [0-9\.]*)
+
+        if [ -z "$KEY_VAULT_NAME" ]; then
+          echo "::error ::Failed to extract key_vault_name from $TFVARS"
+          exit 1
+        fi
+
+        if [ -z "$RESOURCE_GROUP_NAME" ]; then
+          echo "::error ::Failed to extract resource_group_name from $TFVARS"
+          exit 1
+        fi
+
+        if [ -z "$RESOURCE_PREFIX" ]; then
+          echo "::error ::Failed to extract resource_prefix from $TFVARS"
+          exit 1
+        fi
+
+        if [ -z "$STORAGE_ACCOUNT_NAME" ]; then
+          echo "::error ::Failed to extract storage_account_name from $TFVARS"
+          exit 1
+        fi
+
+        if [ -z "$TERRAFORM_VERSION" ]; then
+          echo "::error ::Failed to extract terraform_version from $TFVARS"
+          exit 1
+        fi
+
+        echo "resource_group_name=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
+        echo "key_vault_name=$KEY_VAULT_NAME" >> $GITHUB_ENV
+        echo "resource_prefix=$RESOURCE_PREFIX" >> $GITHUB_ENV
+        echo "storage_account_name=$STORAGE_ACCOUNT_NAME" >> $GITHUB_ENV
+        echo "terraform_version=$TERRAFORM_VERSION" >> $GITHUB_ENV
+
+      shell: bash
+      env:
+        TFVARS: workspace_variables/${{ inputs.environment_name }}.tfvars.json
+      working-directory: ${{ inputs.app_root }}/terraform
+
+    - uses: Azure/login@v1
+      with:
+        creds: ${{ inputs.azure_credentials }}
+
+    ##TO DO: decide whether these resources will be shared or app specific, shared probably best
+    - id: deploy-arm-resources
+      run: |
+        make ci ${{ inputs.environment_name }} deploy-azure-resources
+      shell: bash
+
+    # get TFSTATE-CONTAINER-ACCESS-KEY
+    - run: |
+        TFSTATE_CONTAINER_ACCESS_KEY="$(az storage account keys list -g ${{ env.resource_group_name }} -n ${{ env.storage_account_name }} | jq -r '.[0].value')"
+        echo "::add-mask::$TFSTATE_CONTAINER_ACCESS_KEY"
+        echo "TFSTATE_CONTAINER_ACCESS_KEY=$TFSTATE_CONTAINER_ACCESS_KEY" >> $GITHUB_ENV
+      shell: bash
+
+    - uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ ENV.terraform_version }}
+        terraform_wrapper: false
+
+    - id: terraform
+      run: |
+        make ci ${{ inputs.environment_name }} terraform-apply
+      env:
+        APP_ROOT: ${{ inputs.app_root }}
+        ARM_ACCESS_KEY: ${{ env.TFSTATE_CONTAINER_ACCESS_KEY }}
+        TF_VAR_azure_sp_credentials_json: ${{ inputs.azure_credentials }}
+      shell: bash
