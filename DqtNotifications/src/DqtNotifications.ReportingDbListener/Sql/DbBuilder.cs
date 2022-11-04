@@ -24,6 +24,29 @@ public class DbBuilder : IDbBuilder
         _logger = logger;
     }
 
+    public static ImmutableDictionary<string, object?> MapAttributesToColumns(EntityDelta entity)
+    {
+        return entity.Attributes
+            .SelectMany(attr =>
+            {
+                var columns = new List<(string ColumnName, object? Value)>();
+
+                if (attr.Value is EntityReference entityReference)
+                {
+                    // EntityReference attributes get two columns; one for the ID and one for the entity type
+                    columns.Add((attr.Key, entityReference.Id));
+                    columns.Add(($"{attr.Key}_entitytype", entityReference.EntityLogicalName));
+                }
+                else
+                {
+                    columns.Add((attr.Key, attr.Value));
+                }
+
+                return columns;
+            })
+            .ToImmutableDictionary(t => t.ColumnName, t => t.Value);
+    }
+
     public async Task<UpsertEntityRowResult> UpsertEntityRow(
         string tableName,
         Guid id,
