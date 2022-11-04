@@ -47,6 +47,29 @@ public class DbBuilder : IDbBuilder
             .ToImmutableDictionary(t => t.ColumnName, t => t.Value);
     }
 
+    public async Task<ApplyEntityDeltaResult> ApplyEntityDelta(
+        EntityDelta entity,
+        CancellationToken cancellationToken)
+    {
+        if (entity.EntityDeltaType == EntityDeltaType.Delete)
+        {
+            throw new NotImplementedException();
+        }
+        else
+        {
+            var columns = MapAttributesToColumns(entity);
+            var rowStateHint = entity.EntityDeltaType == EntityDeltaType.Create ? RowStateHint.NewRow : RowStateHint.ExistingRow;
+            var upsertResult = await UpsertEntityRow(entity.EntityLogicalName, entity.Id, rowStateHint, columns, cancellationToken);
+
+            return upsertResult switch
+            {
+                UpsertEntityRowResult.Success => ApplyEntityDeltaResult.Success,
+                UpsertEntityRowResult.StaleDataError => ApplyEntityDeltaResult.StaleDataError,
+                _ => throw new NotSupportedException($"Unrecognised {nameof(UpsertEntityRowResult)}: '{upsertResult}'.")
+            };
+        }
+    }
+
     public async Task<UpsertEntityRowResult> UpsertEntityRow(
         string tableName,
         Guid id,
@@ -276,5 +299,11 @@ public class DbBuilder : IDbBuilder
         Success = 0,
         RowDoesNotExist = 1,
         RowVersionStale = 2
+    }
+
+    public enum UpsertEntityRowResult
+    {
+        Success = 0,
+        StaleDataError = 1
     }
 }
