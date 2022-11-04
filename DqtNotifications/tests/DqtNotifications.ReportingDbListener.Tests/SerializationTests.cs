@@ -24,7 +24,7 @@ public class SerializationTests
         var gendercode = Assert.IsType<OptionSetValue>(target.Attributes["gendercode"]);
         Assert.Equal(2, gendercode.Value);
 
-        var ownerid = Assert.IsType<EntityReference>(target.Attributes["ownerid"]);
+        var ownerid = Assert.IsType<ReportingDbListener.Messages.EntityReference>(target.Attributes["ownerid"]);
         Assert.Equal(new Guid("ab7501c2-aa4e-ec11-8c62-000d3aba6cf0"), ownerid.Id);
         Assert.Equal("systemuser", ownerid.LogicalName);
     }
@@ -44,7 +44,7 @@ public class SerializationTests
         Assert.Equal("contact", target.LogicalName);
         Assert.Equal(new Guid("c34e4970-7810-4e1f-9b34-8af0187f4271"), target.Id);
 
-        var ownerid = Assert.IsType<EntityReference>(target.Attributes["modifiedby"]);
+        var ownerid = Assert.IsType<ReportingDbListener.Messages.EntityReference>(target.Attributes["modifiedby"]);
         Assert.Equal(new Guid("ab7501c2-aa4e-ec11-8c62-000d3aba6cf0"), ownerid.Id);
         Assert.Equal("systemuser", ownerid.LogicalName);
     }
