@@ -1,4 +1,4 @@
-/*locals {
+locals {
   use_default_subnet_id      = var.subnet_id == "" ? true : false
   private_endpoint_rg_name   = var.project == "sds" ? "ss-${local.network_env}-network-rg" : "${var.project}-${local.network_env}-network-rg"
   private_endpoint_vnet_name = var.project == "sds" ? "ss-${local.network_env}-vnet" : "${var.project}-${local.network_env}-vnet"
@@ -32,7 +32,7 @@ resource "azurerm_private_endpoint" "this" {
 
   private_dns_zone_group {
     name                 = "servicebus-endpoint-dnszonegroup"
-    private_dns_zone_ids = ["/subscriptions/1baf5470-1c3e-40d3-a6f7-74bfbce4b348/resourceGroups/core-infra-intsvc-rg/providers/Microsoft.Network/privateDnsZones/privatelink.servicebus.windows.net"]
+    #private_dns_zone_ids = [""]
   }
 
   tags = var.common_tags
@@ -45,4 +45,3 @@ resource "azurerm_servicebus_namespace_network_rule_set" "this" {
   public_network_access_enabled = var.enable_public_access
 
 }
-*/
