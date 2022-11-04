@@ -8,7 +8,8 @@ public static class SerializerSettings
     {
         var serializerSettings = new JsonSerializerSettings();
 
-        serializerSettings.Converters.Add(new KeyValuePairCollectionJsonConverter());
+        serializerSettings.Converters.Add(new StringObjectKeyValuePairCollectionJsonConverter());
+        serializerSettings.Converters.Add(new StringStringKeyValuePairCollectionJsonConverter());
         serializerSettings.Converters.Add(new MessageJsonConverter(messageTypeRegistry));
         serializerSettings.Converters.Add(new CrmObjectJsonConverter());
 
