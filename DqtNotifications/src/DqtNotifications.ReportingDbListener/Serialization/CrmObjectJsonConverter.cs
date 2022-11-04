@@ -33,7 +33,7 @@ public class CrmObjectJsonConverter : JsonConverter
         }
         else if (type == "EntityReference:http://schemas.microsoft.com/xrm/2011/Contracts")
         {
-            return jToken.ToObject<EntityReference>(serializer);
+            return jToken.ToObject<Messages.EntityReference>(serializer);
         }
         else if (type == "OptionSetValue:http://schemas.microsoft.com/xrm/2011/Contracts")
         {
