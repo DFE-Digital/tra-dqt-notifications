@@ -438,7 +438,7 @@ public class DbBuilderTests : IClassFixture<DbFixture>
         var ownerId = Guid.NewGuid();
         var ownerEntityLogicalName = "systemuser";
 
-        var entity = new EntityDelta(
+        var entity = EntityDelta.Create(
             "contact",
             Guid.NewGuid(),
             new Dictionary<string, object?>()

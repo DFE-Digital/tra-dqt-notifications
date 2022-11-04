@@ -9,11 +9,11 @@ public class MessageEntityMapper
 
     public EntityDelta MapMessage(IMessage message) => message switch
     {
-        CreateMessage createMessage => new EntityDelta(
+        CreateMessage createMessage => EntityDelta.Create(
             createMessage.Target.LogicalName,
             createMessage.Target.Id,
             TranslateAttributes(createMessage.Target)),
-        UpdateMessage updateMessage => new EntityDelta(
+        UpdateMessage updateMessage => EntityDelta.Update(
             updateMessage.Target.LogicalName,
             updateMessage.Target.Id,
             TranslateAttributes(updateMessage.Target)),

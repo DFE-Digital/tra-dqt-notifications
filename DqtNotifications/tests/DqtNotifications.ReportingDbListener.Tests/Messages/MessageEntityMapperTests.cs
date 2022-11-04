@@ -31,7 +31,7 @@ public class MessageEntityMapperTests
 
         Assert.Equal(id, result.Id);
         Assert.Equal(entityLogicalName, result.EntityLogicalName);
-        Assert.True(result.IsDelete);
+        Assert.Equal(EntityDeltaType.Delete, result.EntityDeltaType);
     }
 
     [Fact]
@@ -66,9 +66,9 @@ public class MessageEntityMapperTests
 
         var result = mapper.MapMessage(message);
 
-        Assert.False(result.IsDelete);
         Assert.Equal(id, result.Id);
         Assert.Equal(entityLogicalName, result.EntityLogicalName);
+        Assert.Equal(EntityDeltaType.Create, result.EntityDeltaType);
     }
 
     [Fact]
@@ -103,9 +103,9 @@ public class MessageEntityMapperTests
 
         var result = mapper.MapMessage(message);
 
-        Assert.False(result.IsDelete);
         Assert.Equal(id, result.Id);
         Assert.Equal(entityLogicalName, result.EntityLogicalName);
+        Assert.Equal(EntityDeltaType.Update, result.EntityDeltaType);
     }
 
     [Theory]
