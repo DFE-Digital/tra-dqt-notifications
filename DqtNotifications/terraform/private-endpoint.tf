@@ -1,4 +1,4 @@
-locals {
+/*locals {
   use_default_subnet_id      = var.subnet_id == "" ? true : false
   private_endpoint_rg_name   = var.project == "sds" ? "ss-${local.network_env}-network-rg" : "${var.project}-${local.network_env}-network-rg"
   private_endpoint_vnet_name = var.project == "sds" ? "ss-${local.network_env}-vnet" : "${var.project}-${local.network_env}-vnet"
@@ -45,3 +45,4 @@ resource "azurerm_servicebus_namespace_network_rule_set" "this" {
   public_network_access_enabled = var.enable_public_access
 
 }
+*/
