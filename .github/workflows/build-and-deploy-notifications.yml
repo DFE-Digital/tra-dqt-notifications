@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - main
+    -deploy-resources-v1.1
   pull_request:
     branches:
     - main
