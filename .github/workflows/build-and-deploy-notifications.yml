@@ -4,7 +4,7 @@ on:
   push:
     branches:
     - main
-    -deploy-resource-v1.1
+    - deploy-resource-v1.1
   pull_request:
     branches:
     - main
