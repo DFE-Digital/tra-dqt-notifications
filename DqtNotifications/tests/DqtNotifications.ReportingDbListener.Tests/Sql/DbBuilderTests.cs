@@ -431,4 +431,27 @@ public class DbBuilderTests : IClassFixture<DbFixture>
         var result = await dbBuilderMock.Object.UpsertEntityRow(tableName, id, RowStateHint.ExistingRow, columnValues, CancellationToken.None);
         Assert.Equal(UpsertEntityRowResult.StaleDataError, result);
     }
+
+    [Fact]
+    public void MapAttributesToColumns_MapsEntityReferenceToTwoColumns()
+    {
+        var ownerId = Guid.NewGuid();
+        var ownerEntityLogicalName = "systemuser";
+
+        var entity = new EntityDelta(
+            "contact",
+            Guid.NewGuid(),
+            new Dictionary<string, object?>()
+            {
+                {
+                    "owner",
+                    new EntityReference(ownerEntityLogicalName, ownerId)
+                }
+            });
+
+        var columnValues = DbBuilder.MapAttributesToColumns(entity);
+
+        Assert.Contains(columnValues, kvp => kvp.Key == "owner" && kvp.Value?.Equals(ownerId) == true);
+        Assert.Contains(columnValues, kvp => kvp.Key == "owner_entitytype" && kvp.Value?.Equals(ownerEntityLogicalName) == true);
+    }
 }
