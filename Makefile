@@ -101,6 +101,7 @@ terraform-plan: terraform-init# make dev terraform-plan APP_ROOT=DqtNotification
 
 terraform-apply: terraform-init# make dev terraform-apply APP_ROOT=DqtNotifications
 	terraform -chdir=${APP_ROOT}/terraform apply -var-file workspace_variables/${DEPLOY_ENV}.tfvars.json ${AUTO_APPROVE}
+	
 
 terraform-destroy: terraform-init# make dev terraform-destroy APP_ROOT=DqtNotifications
 	terraform -chdir=${APP_ROOT}/terraform destroy -var-file workspace_variables/${DEPLOY_ENV}.tfvars.json ${AUTO_APPROVE}
