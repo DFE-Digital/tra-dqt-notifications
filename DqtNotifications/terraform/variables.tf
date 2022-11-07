@@ -1,30 +1,38 @@
-variable "location" {
-  type    = string
-  default = "UK South"
-}
 
 variable "project" {
   default     = ""
   description = "Project name (required for Premium SKU) - sds or cft. "
 }
 
-variable "name" {
-  type        = string
-  description = "Unique Azure Service Bus namespace"
-}
-
-variable "resource_group_name" {
-  type        = string
-  description = "Resource group in which the Service Bus namespace should exist"
-}
-
-variable "env" {
+variable "environment_name" {
   type = string
 }
 
-variable "common_tags" {
-  type = map(string)
+variable "namespace_prefix" {
+  type    = string
+  default = ""
 }
+
+variable "topic_prefix" {
+  type    = string
+  default = ""
+}
+
+variable "storage_prefix" {
+  type    = string
+  default = ""
+
+}
+
+variable "plan_prefix" {
+  type    = string
+  default = ""
+}
+#variable "resource_group_name" {
+# type        = string
+#description = "Resource group in which the Service Bus namespace should exist"
+#}
+
 
 variable "sku" {
   type        = string
@@ -55,7 +63,20 @@ variable "enable_private_endpoint" {
   description = "Enable Private endpoint? Only available with the Premium SKU, if set to true a Premium type Service Bus Namespace will be deployed automatically"
 }
 
-variable "subnet_id" {
-  default     = ""
-  description = "Subnet ID to attach private endpoint to - overrides the default subnet id"
+variable "data_protection_container_delete_retention_days" {
+  default = 7
+  type    = number
 }
+
+
+locals {
+  hosting_environment       = var.environment_name
+  servicebus_namespace_name = "${var.namespace_prefix}dqtnoti-${var.environment_name}-sbn"
+  servicebus_topic_name     = "${var.topic_prefix}dqtnoti-${var.environment_name}-sbt"
+  storage_account_name      = "${var.storage_prefix}dqtnoti${var.environment_name}stg1"
+  app_service_plan_name     = "${var.plan_prefix}dqtnoti-${var.environment_name}-spl"
+}
+#variable "subnet_id" {
+# default     = ""
+# description = "Subnet ID to attach private endpoint to - overrides the default subnet id"
+#}
