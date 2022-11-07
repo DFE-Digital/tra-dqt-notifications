@@ -29,6 +29,10 @@ variable "storage_account_name" {
 
 }
 
+variable "key_vault_name" {
+  type = string
+}
+
 variable "plan_prefix" {
   type    = string
   default = ""
