@@ -2,7 +2,7 @@ terraform {
   required_version = "~> 1.0"
 
   backend "azurerm" {
-    container_name = "dqt-notifications-tfstate"
+    container_name = "s165d01dqtnotitfstatedv"
   }
 
   required_providers {
