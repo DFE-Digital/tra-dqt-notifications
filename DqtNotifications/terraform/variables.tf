@@ -46,6 +46,18 @@ variable "capacity" {
   description = "Specifies the capacity. Defaults to 1 when using Premium SKU."
 }
 
+variable "storage_container_name" {
+  type    = string
+  default = ""
+
+}
+
+variable "function_app_name" {
+  type    = string
+  default = ""
+
+}
+
 variable "zone_redundant" {
   type        = bool
   default     = false
@@ -74,9 +86,8 @@ locals {
   servicebus_namespace_name = "${var.namespace_prefix}dqtnoti-${var.environment_name}-sbn"
   servicebus_topic_name     = "${var.topic_prefix}dqtnoti-${var.environment_name}-sbt"
   storage_account_name      = "${var.storage_prefix}dqtnoti${var.environment_name}stg1"
+  storage_container_name    = "${var.storage_container_name}dqtnoti-${var.environment_name}-sck"
   app_service_plan_name     = "${var.plan_prefix}dqtnoti-${var.environment_name}-spl"
+   azurerm_function_app_name = "${var.function_app_name}dqtnoti-${var.environment_name}-fapp"
 }
-#variable "subnet_id" {
-# default     = ""
-# description = "Subnet ID to attach private endpoint to - overrides the default subnet id"
-#}
+
