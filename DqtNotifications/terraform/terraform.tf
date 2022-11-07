@@ -1,14 +1,15 @@
 terraform {
-  required_version = "~> 1.0"
+  required_version = ">= 1.3.1"
 
   backend "azurerm" {
-    container_name = "s165d01dqtnotitfstatedv"
+    container_name = "dqtnoti-tfstate"
   }
 
-  required_providers {
+   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.84"
+      version = "~> 3.27.0"
+    }
     }
   }
 }
