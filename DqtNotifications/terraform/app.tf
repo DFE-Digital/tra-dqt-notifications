@@ -44,12 +44,11 @@ resource "azurerm_function_app" "functionAp" {
 }
 
 # Postgress Server
-
 resource "azurerm_postgresql_flexible_server" "postgres-server" {
   name                   = local.postgres_server_name
   location               = data.azurerm_resource_group.rgsb.location
   resource_group_name    = data.azurerm_resource_group.rgsb.name
-  version                = 14
+  version                = 11
   administrator_login    = "adminuser34"
   administrator_password = "Password1234"
   create_mode            = "Default"
@@ -80,7 +79,6 @@ resource "azurerm_postgresql_flexible_server_database" "postgres-database" {
 }
 
 # Servicebus Namespace
-
 resource "azurerm_servicebus_namespace" "servicebus_namespace" {
   name                = local.servicebus_namespace_name
   location            = data.azurerm_resource_group.rgsb.location
@@ -97,7 +95,6 @@ resource "azurerm_servicebus_namespace" "servicebus_namespace" {
 }
 
 # Servicebus Auth Rule
-
 resource "azurerm_servicebus_namespace_authorization_rule" "send_listen_auth_rule" {
   name         = local.auth_rule_name
   namespace_id = azurerm_servicebus_namespace.servicebus_namespace.id
@@ -109,7 +106,6 @@ resource "azurerm_servicebus_namespace_authorization_rule" "send_listen_auth_rul
 }
 
 # Servicebus Topic
-
 resource "azurerm_servicebus_topic" "servicebus_topic" {
   name         = local.servicebus_topic_name
   namespace_id = azurerm_servicebus_namespace.servicebus_namespace.id
