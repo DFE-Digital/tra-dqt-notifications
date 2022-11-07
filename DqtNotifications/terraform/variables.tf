@@ -80,6 +80,32 @@ variable "data_protection_container_delete_retention_days" {
   type    = number
 }
 
+variable "postgres_server_name" {
+  type    = string
+  default = ""
+
+}
+variable "postgres_flexible_server_sku" {
+  type    = string
+  default = "B_Standard_B1ms"
+}
+
+variable "postgres_flexible_server_storage_mb" {
+  type    = number
+  default = 32768
+}
+
+variable "enable_postgres_high_availability" {
+  type    = bool
+  default = false
+}
+
+variable "postgres_database_name" {
+  type    = string
+  default = ""
+
+}
+
 
 locals {
   hosting_environment       = var.environment_name
@@ -89,5 +115,7 @@ locals {
   storage_container_name    = "${var.storage_container_name}dqtnoti-${var.environment_name}-sck"
   app_service_plan_name     = "${var.plan_prefix}dqtnoti-${var.environment_name}-spl"
   azurerm_function_app_name = "${var.function_app_name}dqtnoti-${var.environment_name}-fapp"
+  postgres_server_name      = "${var.postgres_server_name}dqtnoti-${var.environment_name}-psn"
+  postgres_database_name    = "${var.postgres_database_name}dqtnoti-${var.environment_name}-pdb"
 }
 
