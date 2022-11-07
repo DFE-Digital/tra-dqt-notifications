@@ -94,16 +94,16 @@ validate-keyvault-secret: read-keyvault-config install-fetch-config set-azure-ac
 terraform-init:
 	$(if $(IMAGE_TAG), , $(eval export IMAGE_TAG=main))
 	[[ "${SP_AUTH}" != "true" ]] && az account set -s $(AZURE_SUBSCRIPTION) || true
-	terraform -chdir=${APP_ROOT}/terraform init -backend-config workspace_variables/${DEPLOY_ENV}.backend.tfvars $(backend_config) -upgrade -reconfigure
+	terraform -chdir=terraform init -backend-config workspace_variables/${DEPLOY_ENV}.backend.tfvars $(backend_config) -upgrade -reconfigure
 
-terraform-plan: terraform-init# make dev terraform-plan APP_ROOT=DqtNotifications
-	terraform -chdir=${APP_ROOT}/terraform plan -var-file workspace_variables/${DEPLOY_ENV}.tfvars.json
+terraform-plan: terraform-init
+	terraform -chdir=terraform plan -var-file workspace_variables/${DEPLOY_ENV}.tfvars.json
 
-terraform-apply: terraform-init# make dev terraform-apply APP_ROOT=DqtNotifications
-	terraform -chdir=${APP_ROOT}/terraform apply -var-file workspace_variables/${DEPLOY_ENV}.tfvars.json ${AUTO_APPROVE}
+terraform-apply: terraform-init
+	terraform -chdir=terraform apply -var-file workspace_variables/${DEPLOY_ENV}.tfvars.json ${AUTO_APPROVE}
 
-terraform-destroy: terraform-init# make dev terraform-destroy APP_ROOT=DqtNotifications
-	terraform -chdir=${APP_ROOT}/terraform destroy -var-file workspace_variables/${DEPLOY_ENV}.tfvars.json ${AUTO_APPROVE}
+terraform-destroy: terraform-init
+	terraform -chdir=terraform destroy -var-file workspace_variables/${DEPLOY_ENV}.tfvars.json ${AUTO_APPROVE}
 
 deploy-azure-resources: set-azure-account set-azure-template-tag set-azure-resource-group-tags# make dev deploy-azure-resources AUTO_APPROVE=1
 	$(if $(AUTO_APPROVE), , $(error can only run with AUTO_APPROVE))
