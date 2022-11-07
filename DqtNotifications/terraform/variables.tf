@@ -28,10 +28,10 @@ variable "plan_prefix" {
   type    = string
   default = ""
 }
-#variable "resource_group_name" {
-# type        = string
-#description = "Resource group in which the Service Bus namespace should exist"
-#}
+
+variable "resource_group_name" {
+type        = string
+}
 
 
 variable "sku" {
