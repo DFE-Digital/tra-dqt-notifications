@@ -1,4 +1,4 @@
-output "name" {
+/*output "name" {
   value = azurerm_servicebus_namespace.servicebus_namespace.name
 }
 
@@ -30,3 +30,4 @@ output "sku" {
 output "id" {
   value = azurerm_servicebus_namespace.servicebus_namespace.id
 }
+*/
