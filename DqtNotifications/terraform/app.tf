@@ -76,11 +76,14 @@ resource "azurerm_app_service_plan" "app_service_plan" {
   name                = local.app_service_plan_name
   location            = data.azurerm_resource_group.rgsb.location
   resource_group_name = data.azurerm_resource_group.rgsb.name
+  kind                = "Linux"
+  reserved            = true
 
   sku {
-    tier = "Standard"
-    size = "S1"
+    tier = "Dynamic"
+    size = "Y1"
   }
+  
 
   lifecycle {
     ignore_changes = [
