@@ -8,6 +8,10 @@ variable "environment_name" {
   type = string
 }
 
+variable "resource_prefix"{
+  type = string
+  default = ""
+}
 variable "namespace_prefix" {
   type    = string
   default = ""
@@ -16,9 +20,10 @@ variable "namespace_prefix" {
 variable "topic_prefix" {
   type    = string
   default = ""
+  
 }
 
-variable "storage_prefix" {
+variable "storage_account_name" {
   type    = string
   default = ""
 
@@ -111,7 +116,7 @@ locals {
   hosting_environment       = var.environment_name
   servicebus_namespace_name = "${var.namespace_prefix}dqtnoti-${var.environment_name}-sbn"
   servicebus_topic_name     = "${var.topic_prefix}dqtnoti-${var.environment_name}-sbt"
-  storage_account_name      = "${var.storage_prefix}dqtnoti${var.environment_name}stg1"
+  storage_account_name      = "${var.storage_account_name}dqtnoti${var.environment_name}stg1"
   storage_container_name    = "${var.storage_container_name}dqtnoti-${var.environment_name}-sck"
   app_service_plan_name     = "${var.plan_prefix}dqtnoti-${var.environment_name}-spl"
   azurerm_function_app_name = "${var.function_app_name}dqtnoti-${var.environment_name}-fapp"
