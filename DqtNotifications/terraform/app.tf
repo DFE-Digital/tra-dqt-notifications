@@ -106,3 +106,35 @@ resource "azurerm_function_app" "functionAp" {
     ]
   }
 }
+
+resource "azurerm_postgresql_flexible_server" "postgres-server" {
+  name                   = local.postgres_server_name
+  location               = data.azurerm_resource_group.rgsb.location
+  resource_group_name    = data.azurerm_resource_group.rgsb.name
+  version                = 14
+  administrator_login    = "adminuser34"
+  administrator_password = "Password1234"
+  create_mode            = "Default"
+  storage_mb             = var.postgres_flexible_server_storage_mb
+  sku_name               = var.postgres_flexible_server_sku
+  dynamic "high_availability" {
+    for_each = var.enable_postgres_high_availability ? [1] : []
+    content {
+      mode = "ZoneRedundant"
+    }
+  }
+  lifecycle {
+    ignore_changes = [
+      tags,
+      # Allow Azure to manage deployment zone. Ignore changes.
+      zone,
+      # Allow Azure to manage primary and standby server on fail-over. Ignore changes.
+      high_availability[0].standby_availability_zone
+    ]
+  }
+}
+
+resource "azurerm_postgresql_flexible_server_database" "postgres-database" {
+  name      = local.postgres_database_name
+  server_id = azurerm_postgresql_flexible_server.postgres-server.id
+}
