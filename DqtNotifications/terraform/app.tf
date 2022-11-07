@@ -67,7 +67,7 @@ resource "azurerm_storage_account" "storage_account" {
 }
 
 resource "azurerm_storage_container" "keys" {
-  name                  = "keys"
+  name                  = local.storage_container_name
   storage_account_name  = azurerm_storage_account.storage_account.name
   container_access_type = "private"
 }
@@ -90,7 +90,7 @@ resource "azurerm_app_service_plan" "app_service_plan" {
 }
 
 resource "azurerm_function_app" "functionAp" {
-  name                       = "test-azure-functions34"
+  name                       = local.azurerm_function_app_name
   location                   = data.azurerm_resource_group.rgsb.location
   resource_group_name        = data.azurerm_resource_group.rgsb.name
   app_service_plan_id        = azurerm_app_service_plan.app_service_plan.id
