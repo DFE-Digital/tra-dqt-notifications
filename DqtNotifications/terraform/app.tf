@@ -2,12 +2,7 @@ locals {
   auth_rule_name = "SendAndListenSharedAccessKey"
   sku            = var.enable_private_endpoint == true ? "Premium" : var.sku
   capacity       = local.sku == "Premium" && var.capacity <= 0 ? 1 : var.capacity
-
-  
-   AdminCredentials__Username                   = local.infrastructure_secrets.ADMIN_CREDENTIALS_USERNAME
-   AdminCredentials__Password                   = local.infrastructure_secrets.ADMIN_CREDENTIALS_PASSWORD
-
-    }
+       }
 
 # App Sercie Plan
 resource "azurerm_app_service_plan" "app_service_plan" {
@@ -53,8 +48,8 @@ resource "azurerm_postgresql_flexible_server" "postgres-server" {
   location               = data.azurerm_resource_group.rgsb.location
   resource_group_name    = data.azurerm_resource_group.rgsb.name
   version                = "11"
-  administrator_login    = local.infrastructure_secrets.POSTGRES_ADMIN_USERNAME
-  administrator_password = local.infrastructure_secrets.POSTGRES_ADMIN_PASSWORD
+  administrator_login    = var.administrator_login
+  administrator_password = var.administrator_password
   create_mode            = "Default"
   storage_mb             = var.postgres_flexible_server_storage_mb
   sku_name               = var.postgres_flexible_server_sku

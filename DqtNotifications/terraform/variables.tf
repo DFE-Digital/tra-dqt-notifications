@@ -120,6 +120,17 @@ variable "postgres_database_name" {
 
 }
 
+variable "administrator_login" {
+  description = "The Administrator Login for the PostgreSQL Server. Changing this forces a new resource to be created."
+  type        = string
+  default = "psqladmin"
+}
+
+variable "administrator_password" {
+  description = "The Password associated with the administrator_login for the PostgreSQL Server."
+  type        = string
+}
+
 
 locals {
   hosting_environment       = var.environment_name
