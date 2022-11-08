@@ -33,8 +33,8 @@ resource "azurerm_function_app" "functionAp" {
   location                   = data.azurerm_resource_group.rgsb.location
   resource_group_name        = data.azurerm_resource_group.rgsb.name
   app_service_plan_id        = azurerm_app_service_plan.app_service_plan.id
-  storage_account_name       = azurerm_storage_account.storage_account.name
-  storage_account_access_key = azurerm_storage_account.storage_account.primary_access_key
+  storage_account_name       = azurerm_storage_account.st.name
+  storage_account_access_key = azurerm_storage_account.st.primary_access_key
 
   lifecycle {
     ignore_changes = [
