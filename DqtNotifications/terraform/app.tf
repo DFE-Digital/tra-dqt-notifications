@@ -2,7 +2,8 @@ locals {
   auth_rule_name = "SendAndListenSharedAccessKey"
   sku            = var.enable_private_endpoint == true ? "Premium" : var.sku
   capacity       = local.sku == "Premium" && var.capacity <= 0 ? 1 : var.capacity
-    
+
+  
    AdminCredentials__Username                   = local.infrastructure_secrets.ADMIN_CREDENTIALS_USERNAME
    AdminCredentials__Password                   = local.infrastructure_secrets.ADMIN_CREDENTIALS_PASSWORD
 
