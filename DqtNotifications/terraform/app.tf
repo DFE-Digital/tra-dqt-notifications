@@ -48,7 +48,7 @@ resource "azurerm_postgresql_flexible_server" "postgres-server" {
   name                   = local.postgres_server_name
   location               = data.azurerm_resource_group.rgsb.location
   resource_group_name    = data.azurerm_resource_group.rgsb.name
-  version                = 11
+  version                = "11"
   administrator_login    = "adminuser34"
   administrator_password = "Password1234"
   create_mode            = "Default"
