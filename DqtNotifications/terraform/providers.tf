@@ -14,6 +14,6 @@ provider "azurerm" {
   features {}
 }
 
-provider "statuscake" {
-  api_token = local.monitoring_secrets.STATUSCAKE_PASSWORD
-}
+#provider "statuscake" {
+ # api_token = local.monitoring_secrets.STATUSCAKE_PASSWORD
+#}
