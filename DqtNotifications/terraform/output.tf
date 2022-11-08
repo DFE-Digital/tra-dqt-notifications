@@ -1,3 +1,7 @@
+output "postgres_server_name" {
+  value = azurerm_postgresql_flexible_server.postgres-server.name
+}
+
 /*output "name" {
   value = azurerm_servicebus_namespace.servicebus_namespace.name
 }
