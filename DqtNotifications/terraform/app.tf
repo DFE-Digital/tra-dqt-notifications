@@ -116,7 +116,7 @@ resource "azurerm_servicebus_topic" "servicebus_topic" {
 }
 
 #Storage account
-resource "azurerm_storage_account" "storage_account" {
+resource "azurerm_storage_account" "st" {
   name                              = local.storage_account_name
   resource_group_name               = data.azurerm_resource_group.rgsb.name
   location                          = data.azurerm_resource_group.rgsb.location
@@ -145,7 +145,7 @@ resource "azurerm_storage_account" "storage_account" {
 #Storage container
 resource "azurerm_storage_container" "keys" {
   name                  = local.storage_container_name
-  storage_account_name  = azurerm_storage_account.storage_account.name
+  storage_account_name  = azurerm_storage_account.st.name
   container_access_type = "private"
 }
 
