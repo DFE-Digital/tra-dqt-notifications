@@ -5,8 +5,8 @@ locals {
     
    AdminCredentials__Username                   = local.infrastructure_secrets.ADMIN_CREDENTIALS_USERNAME
    AdminCredentials__Password                   = local.infrastructure_secrets.ADMIN_CREDENTIALS_PASSWORD
-}
 
+    }
 
 # App Sercie Plan
 resource "azurerm_app_service_plan" "app_service_plan" {
