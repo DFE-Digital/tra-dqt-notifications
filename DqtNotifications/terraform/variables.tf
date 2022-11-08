@@ -38,6 +38,11 @@ variable "plan_prefix" {
   default = ""
 }
 
+variable "azure_sp_credentials_json" {
+  type    = string
+  default = null
+}
+
 variable "resource_group_name" {
 type        = string
 }
