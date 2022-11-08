@@ -117,7 +117,7 @@ resource "azurerm_servicebus_topic" "servicebus_topic" {
 
 #Storage account
 resource "azurerm_storage_account" "st" {
-  name                              = local.storage_account_name
+  name                              = local.storage_account
   resource_group_name               = data.azurerm_resource_group.rgsb.name
   location                          = data.azurerm_resource_group.rgsb.location
   account_tier                      = "Standard"
