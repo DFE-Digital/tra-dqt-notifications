@@ -52,7 +52,7 @@ jobs:
       working-directory: DqtNotifications
 
     - name: Build
-      run: dotnet build --configuration Release
+      run: dotnet build --configuration Release /p:NetCoreBuild=true
       working-directory: DqtNotifications
 
     - name: Create test database

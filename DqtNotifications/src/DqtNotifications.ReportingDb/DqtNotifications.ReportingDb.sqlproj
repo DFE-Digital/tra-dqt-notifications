@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build">
+  <Sdk Name="Microsoft.Build.Sql" Version="0.1.3-preview" />
+  <PropertyGroup>
+    <Name>DqtNotifications.ReportingDb</Name>
+    <ProjectGuid>{b6a13999-9c99-4965-901a-30ca606a3526}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider</DSP>
+    <ModelCollation>1033, CI</ModelCollation>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Tables" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="Tables\account.sql" />
+    <Build Include="Tables\accountleads.sql" />
+    <Build Include="Tables\annotation.sql" />
+    <Build Include="Tables\AttributeMetadata.sql" />
+    <Build Include="Tables\campaign.sql" />
+    <Build Include="Tables\campaignitem.sql" />
+    <Build Include="Tables\contact.sql" />
+    <Build Include="Tables\contactleads.sql" />
+    <Build Include="Tables\CrmCountHistory.sql" />
+    <Build Include="Tables\DeleteLog.sql" />
+    <Build Include="Tables\dfeta_autonumber.sql" />
+    <Build Include="Tables\dfeta_businesseventaudit.sql" />
+    <Build Include="Tables\dfeta_confirmationletter.sql" />
+    <Build Include="Tables\dfeta_country.sql" />
+    <Build Include="Tables\dfeta_countrystate.sql" />
+    <Build Include="Tables\dfeta_disability.sql" />
+    <Build Include="Tables\dfeta_document.sql" />
+    <Build Include="Tables\dfeta_earlyyearsstatus.sql" />
+    <Build Include="Tables\dfeta_employment.sql" />
+    <Build Include="Tables\dfeta_ethnicity.sql" />
+    <Build Include="Tables\dfeta_hequalification.sql" />
+    <Build Include="Tables\dfeta_hesaukprnmapping.sql" />
+    <Build Include="Tables\dfeta_hesubject.sql" />
+    <Build Include="Tables\dfeta_induction.sql" />
+    <Build Include="Tables\dfeta_inductionperiod.sql" />
+    <Build Include="Tables\dfeta_initialteachertraining.sql" />
+    <Build Include="Tables\dfeta_initiativecode.sql" />
+    <Build Include="Tables\dfeta_integrationtransaction.sql" />
+    <Build Include="Tables\dfeta_integrationtransactionrecord.sql" />
+    <Build Include="Tables\dfeta_ittqualification.sql" />
+    <Build Include="Tables\dfeta_ittsubject.sql" />
+    <Build Include="Tables\dfeta_legacyaudit.sql" />
+    <Build Include="Tables\dfeta_mqestablishment.sql" />
+    <Build Include="Tables\dfeta_mrapplication.sql" />
+    <Build Include="Tables\dfeta_mrcourse.sql" />
+    <Build Include="Tables\dfeta_mremployment.sql" />
+    <Build Include="Tables\dfeta_mrtraining.sql" />
+    <Build Include="Tables\dfeta_optionsetmapping.sql" />
+    <Build Include="Tables\dfeta_organisationcategory.sql" />
+    <Build Include="Tables\dfeta_prdeclinestatusreason.sql" />
+    <Build Include="Tables\dfeta_previousname.sql" />
+    <Build Include="Tables\dfeta_profileamendrequest.sql" />
+    <Build Include="Tables\dfeta_qtsregistration.sql" />
+    <Build Include="Tables\dfeta_qualification.sql" />
+    <Build Include="Tables\dfeta_sanction.sql" />
+    <Build Include="Tables\dfeta_sanctioncode.sql" />
+    <Build Include="Tables\dfeta_schooldirectinitiative.sql" />
+    <Build Include="Tables\dfeta_serviceannouncement.sql" />
+    <Build Include="Tables\dfeta_specialism.sql" />
+    <Build Include="Tables\dfeta_teacherstatus.sql" />
+    <Build Include="Tables\dfeta_temporaryqueries.sql" />
+    <Build Include="Tables\dfeta_tsstcohorts.sql" />
+    <Build Include="Tables\dfeta_tsstsubjects.sql" />
+    <Build Include="Tables\dfeta_webactivitylog.sql" />
+    <Build Include="Tables\GlobalOptionSetMetadata.sql" />
+    <Build Include="Tables\incident.sql" />
+    <Build Include="Tables\incidentresolution.sql" />
+    <Build Include="Tables\lead.sql" />
+    <Build Include="Tables\LegacyAudit.sql" />
+    <Build Include="Tables\LegacyAudit_Attributes.sql" />
+    <Build Include="Tables\OptionSetMetadata.sql" />
+    <Build Include="Tables\SQLCountHistory.sql" />
+    <Build Include="Tables\StateMetadata.sql" />
+    <Build Include="Tables\StatusMetadata.sql" />
+    <Build Include="Tables\subject.sql" />
+    <Build Include="Tables\systemuser.sql" />
+    <Build Include="Tables\TargetMetadata.sql" />
+    <Build Include="Tables\transactioncurrency.sql" />
+  </ItemGroup>
+</Project>
