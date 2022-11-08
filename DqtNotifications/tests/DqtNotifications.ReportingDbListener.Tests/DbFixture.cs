@@ -1,6 +1,7 @@
+using System.Data.SqlClient;
 using Dapper;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.SqlServer.Dac;
 using Respawn;
 
 namespace DqtNotifications.ReportingDbListener.Tests;
@@ -30,7 +31,7 @@ public class DbFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _respawner = await Respawner.CreateAsync(ConnectionString);
-        await ResetSchema();
+        ResetSchema();
     }
 
     public async Task<IReadOnlyCollection<IReadOnlyDictionary<string, object?>>> Query(
@@ -44,27 +45,36 @@ public class DbFixture : IAsyncLifetime
             .ToArray();
     }
 
-    public async Task ResetSchema()
+    public void ResetSchema()
     {
-        // Super temporary hacky way to create a basic schema for testing
+        var dacpacLocation = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../../src/DqtNotifications.ReportingDb/bin/",
+#if DEBUG
+            "Debug",
+#else
+            "Release",
+#endif
+            "DqtNotifications.ReportingDb.dacpac"));
 
-        var sql = @"
-if exists (select 1 from sysobjects where type = 'U' and name = 'contact')
-    drop table contact
+        var dbName = new SqlConnectionStringBuilder(ConnectionString).InitialCatalog;
 
-create table contact(
-    Id uniqueidentifier primary key not null,
-    SinkCreatedOn datetime,
-    SinkModifiedOn datetime,
-    versionnumber bigint,
-    firstname nvarchar(200),
-    middlename nvarchar(200),
-    lastname nvarchar(200))
-";
-
-        using var conn = await GetConnection();
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText = sql;
-        await cmd.ExecuteNonQueryAsync();
+        using var package = DacPackage.Load(dacpacLocation);
+        var result = new DacServices(ConnectionString).Publish(
+            package,
+            dbName,
+            new PublishOptions()
+            {
+                DeployOptions = new DacDeployOptions()
+                {
+                    BlockOnPossibleDataLoss = false,
+                    DropObjectsNotInSource = true,
+                    DoNotDropObjectTypes = new[]
+                    {
+                        ObjectType.Logins,
+                        ObjectType.Users,
+                        ObjectType.Permissions,
+                        ObjectType.RoleMembership
+                    }
+                }
+            });
     }
 }

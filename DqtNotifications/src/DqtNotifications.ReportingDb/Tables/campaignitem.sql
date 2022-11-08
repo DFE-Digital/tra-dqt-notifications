@@ -1,0 +1,21 @@
+create table [campaignitem] (
+    [Id] uniqueidentifier not null constraint [EPK[dbo]].[campaignitem]]] primary key,
+    [SinkCreatedOn] datetime,
+    [SinkModifiedOn] datetime,
+    [campaignid] uniqueidentifier,
+    [campaignid_entitytype] nvarchar(128),
+    [ownerid] uniqueidentifier,
+    [ownerid_entitytype] nvarchar(128),
+    [importsequencenumber] int,
+    [owninguser] uniqueidentifier,
+    [name] nvarchar(100),
+    [owneridtype] nvarchar(4000),
+    [owningbusinessunit] uniqueidentifier,
+    [timezoneruleversionnumber] int,
+    [versionnumber] bigint,
+    [entitytype] nvarchar(4000),
+    [utcconversiontimezonecode] int,
+    [campaignitemid] uniqueidentifier,
+    [overriddencreatedon] datetime,
+    [entityid] uniqueidentifier
+)

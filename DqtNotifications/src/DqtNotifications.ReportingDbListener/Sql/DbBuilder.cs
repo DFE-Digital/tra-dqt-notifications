@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using System.Data;
+using System.Data.SqlClient;
 using System.Text;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 
 namespace DqtNotifications.ReportingDbListener.Sql;

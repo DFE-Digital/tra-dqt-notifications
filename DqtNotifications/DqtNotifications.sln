@@ -12,11 +12,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DqtNotifications.ConfigureSolution", "src\DqtNotifications.ConfigureSolution\DqtNotifications.ConfigureSolution.csproj", "{0BD5493E-335F-4A75-BB96-EC5FD1E86180}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DqtNotifications.ReportingDbListener", "src\DqtNotifications.ReportingDbListener\DqtNotifications.ReportingDbListener.csproj", "{69D92335-71A0-4F83-B6CC-8F6CACDB3DF5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DqtNotifications.ReportingDbListener", "src\DqtNotifications.ReportingDbListener\DqtNotifications.ReportingDbListener.csproj", "{69D92335-71A0-4F83-B6CC-8F6CACDB3DF5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DqtNotifications.ReportingDbListener.Tests", "tests\DqtNotifications.ReportingDbListener.Tests\DqtNotifications.ReportingDbListener.Tests.csproj", "{504C7481-06F7-4AAE-BB40-9C5C875F591C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{66F75AE1-9C06-4471-9F3A-E1A9145B2803}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "DqtNotifications.ReportingDb", "src\DqtNotifications.ReportingDb\DqtNotifications.ReportingDb.sqlproj", "{B6A13999-9C99-4965-901A-30CA606A3526}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,6 +38,11 @@ Global
 		{504C7481-06F7-4AAE-BB40-9C5C875F591C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{504C7481-06F7-4AAE-BB40-9C5C875F591C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{504C7481-06F7-4AAE-BB40-9C5C875F591C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6A13999-9C99-4965-901A-30CA606A3526}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6A13999-9C99-4965-901A-30CA606A3526}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{B6A13999-9C99-4965-901A-30CA606A3526}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6A13999-9C99-4965-901A-30CA606A3526}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6A13999-9C99-4965-901A-30CA606A3526}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -44,6 +51,7 @@ Global
 		{0BD5493E-335F-4A75-BB96-EC5FD1E86180} = {4785144D-F793-4370-AC6A-359BD1A07F31}
 		{69D92335-71A0-4F83-B6CC-8F6CACDB3DF5} = {4785144D-F793-4370-AC6A-359BD1A07F31}
 		{504C7481-06F7-4AAE-BB40-9C5C875F591C} = {66F75AE1-9C06-4471-9F3A-E1A9145B2803}
+		{B6A13999-9C99-4965-901A-30CA606A3526} = {4785144D-F793-4370-AC6A-359BD1A07F31}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7808DB06-D8F8-4511-AFBD-3639383F57E5}
