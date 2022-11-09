@@ -9,5 +9,6 @@ public class Startup
         var testConfiguration = new TestConfiguration();
 
         services.AddSingleton(testConfiguration);
+        services.AddSingleton<DbFixture>();
     }
 }
