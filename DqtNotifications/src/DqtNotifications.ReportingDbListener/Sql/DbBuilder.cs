@@ -44,6 +44,7 @@ public class DbBuilder : IDbBuilder
 
                 return columns;
             })
+            .Append((ColumnName: VersionNumberColumnName, Value: (object?)entity.Version))
             .ToImmutableDictionary(t => t.ColumnName, t => t.Value);
     }
 

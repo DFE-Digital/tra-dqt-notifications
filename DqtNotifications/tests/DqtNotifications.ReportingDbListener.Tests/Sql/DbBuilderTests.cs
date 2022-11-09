@@ -6,7 +6,7 @@ using static DqtNotifications.ReportingDbListener.Sql.DbBuilder;
 
 namespace DqtNotifications.ReportingDbListener.Tests.Sql;
 
-public class DbBuilderTests : IClassFixture<DbFixture>
+public class DbBuilderTests
 {
     private readonly DbFixture _fixture;
 
@@ -18,7 +18,7 @@ public class DbBuilderTests : IClassFixture<DbFixture>
     [Fact]
     public async Task InsertRow_RowDoesNotExist_InsertsRowAndReturnsSuccess()
     {
-        using var conn = await _fixture.GetConnection();
+        using var conn = _fixture.GetConnection();
         var clock = new TestClock();
         var dbBuilder = new DbBuilder(conn, clock, new NullLogger<DbBuilder>());
 
@@ -56,7 +56,7 @@ public class DbBuilderTests : IClassFixture<DbFixture>
     [Fact]
     public async Task InsertRow_RowAlreadyExists_ReturnsRowAlreadyExists()
     {
-        using var conn = await _fixture.GetConnection();
+        using var conn = _fixture.GetConnection();
         var clock = new TestClock();
         var dbBuilder = new DbBuilder(conn, clock, new NullLogger<DbBuilder>());
 
@@ -83,7 +83,7 @@ public class DbBuilderTests : IClassFixture<DbFixture>
     [InlineData(1L)]
     public async Task UpdateRow_RowExistsWithEarlierOrEqualRowVersion_UpdatesRowAndReturnsSuccess(long newVersion)
     {
-        using var conn = await _fixture.GetConnection();
+        using var conn = _fixture.GetConnection();
         var clock = new TestClock();
         var dbBuilder = new DbBuilder(conn, clock, new NullLogger<DbBuilder>());
 
@@ -131,7 +131,7 @@ public class DbBuilderTests : IClassFixture<DbFixture>
     [Fact]
     public async Task UpdateRow_RowDoesNotExists_ReturnsRowDoesNotExist()
     {
-        using var conn = await _fixture.GetConnection();
+        using var conn = _fixture.GetConnection();
         var clock = new TestClock();
         var dbBuilder = new DbBuilder(conn, clock, new NullLogger<DbBuilder>());
 
@@ -155,7 +155,7 @@ public class DbBuilderTests : IClassFixture<DbFixture>
     [Fact]
     public async Task UpdateRow_RowExistsWithLaterRowVersion_DoesNotUpdateRowAndReturnsRowVersionStale()
     {
-        using var conn = await _fixture.GetConnection();
+        using var conn = _fixture.GetConnection();
         var clock = new TestClock();
         var dbBuilder = new DbBuilder(conn, clock, new NullLogger<DbBuilder>());
 
@@ -204,7 +204,7 @@ public class DbBuilderTests : IClassFixture<DbFixture>
     [Fact]
     public async Task UpsertEntityRow_NewRowHintAndRowDoesNotExist_InsertsRowAndReturnsSuccess()
     {
-        using var conn = await _fixture.GetConnection();
+        using var conn = _fixture.GetConnection();
         var clock = new TestClock();
         var dbBuilderMock = new Mock<DbBuilder>(conn, clock, new NullLogger<DbBuilder>()) { CallBase = true };
 
@@ -229,7 +229,7 @@ public class DbBuilderTests : IClassFixture<DbFixture>
     [Fact]
     public async Task UpsertEntityRow_NewRowHintAndRowDoesExistWithEarlierVersion_UpdatesRowAndReturnsSuccess()
     {
-        using var conn = await _fixture.GetConnection();
+        using var conn = _fixture.GetConnection();
         var clock = new TestClock();
         var dbBuilderMock = new Mock<DbBuilder>(conn, clock, new NullLogger<DbBuilder>()) { CallBase = true };
 
@@ -265,7 +265,7 @@ public class DbBuilderTests : IClassFixture<DbFixture>
     [Fact]
     public async Task UpsertEntityRow_NewRowHintAndRowDoesExistWithLaterVersion_ReturnsStaleDataError()
     {
-        using var conn = await _fixture.GetConnection();
+        using var conn = _fixture.GetConnection();
         var clock = new TestClock();
         var dbBuilderMock = new Mock<DbBuilder>(conn, clock, new NullLogger<DbBuilder>()) { CallBase = true };
 
@@ -300,7 +300,7 @@ public class DbBuilderTests : IClassFixture<DbFixture>
     [Fact]
     public async Task UpsertEntityRow_NewRowHintAndRowDoesExistWithEarlierVersionButDeletedBeforeUpdate_ReturnsStaleDataError()
     {
-        using var conn = await _fixture.GetConnection();
+        using var conn = _fixture.GetConnection();
         var clock = new TestClock();
         var dbBuilderMock = new Mock<DbBuilder>(conn, clock, new NullLogger<DbBuilder>()) { CallBase = true };
 
@@ -340,7 +340,7 @@ public class DbBuilderTests : IClassFixture<DbFixture>
     [Fact]
     public async Task UpsertEntityRow_ExistingRowHintAndRowExistsWithEarlierVersionNumber_UpdatesRowAndReturnsSuccess()
     {
-        using var conn = await _fixture.GetConnection();
+        using var conn = _fixture.GetConnection();
         var clock = new TestClock();
         var dbBuilderMock = new Mock<DbBuilder>(conn, clock, new NullLogger<DbBuilder>()) { CallBase = true };
 
@@ -376,7 +376,7 @@ public class DbBuilderTests : IClassFixture<DbFixture>
     [Fact]
     public async Task UpsertEntityRow_ExistingRowHintAndRowDoesNotExist_ReturnsStaleDataError()
     {
-        using var conn = await _fixture.GetConnection();
+        using var conn = _fixture.GetConnection();
         var clock = new TestClock();
         var dbBuilderMock = new Mock<DbBuilder>(conn, clock, new NullLogger<DbBuilder>()) { CallBase = true };
 
@@ -400,7 +400,7 @@ public class DbBuilderTests : IClassFixture<DbFixture>
     [Fact]
     public async Task UpsertEntityRow_ExistingRowHintAndRowExistsWithLaterVersionNumber_ReturnsStaleDataError()
     {
-        using var conn = await _fixture.GetConnection();
+        using var conn = _fixture.GetConnection();
         var clock = new TestClock();
         var dbBuilderMock = new Mock<DbBuilder>(conn, clock, new NullLogger<DbBuilder>()) { CallBase = true };
 
@@ -441,6 +441,7 @@ public class DbBuilderTests : IClassFixture<DbFixture>
         var entity = EntityDelta.Create(
             "contact",
             Guid.NewGuid(),
+            version: 42L,
             new Dictionary<string, object?>()
             {
                 {

@@ -50,7 +50,7 @@ public class MessageEntityMapperTests
                     {
                         Id = id,
                         LogicalName = entityLogicalName,
-                        RowVersion = "42",
+                        RowVersion = 42L,
                         Attributes = new Dictionary<string, object?>()
                         {
                             { "firstname", "Joe" },
@@ -87,7 +87,7 @@ public class MessageEntityMapperTests
                     {
                         Id = id,
                         LogicalName = entityLogicalName,
-                        RowVersion = "42",
+                        RowVersion = 42L,
                         Attributes = new Dictionary<string, object?>()
                         {
                             { "firstname", "Joe" },
@@ -125,7 +125,7 @@ public class MessageEntityMapperTests
                     {
                         Id = Guid.NewGuid(),
                         LogicalName = "contact",
-                        RowVersion = "42",
+                        RowVersion = 42L,
                         Attributes = new Dictionary<string, object?>()
                         {
                             { "createdon", serializedValue }
@@ -144,7 +144,7 @@ public class MessageEntityMapperTests
         var result = mapper.MapMessage(message);
 
         Assert.Collection(
-            result.Attributes,
+            result.Attributes.Where(a => a.Key == "createdon"),
             attr =>
             {
                 Assert.Equal("createdon", attr.Key);
@@ -170,7 +170,7 @@ public class MessageEntityMapperTests
                     {
                         Id = Guid.NewGuid(),
                         LogicalName = "contact",
-                        RowVersion = "42",
+                        RowVersion = 42L,
                         Attributes = new Dictionary<string, object?>()
                         {
                             {

@@ -12,10 +12,12 @@ public class MessageEntityMapper
         CreateMessage createMessage => EntityDelta.Create(
             createMessage.Target.LogicalName,
             createMessage.Target.Id,
+            createMessage.Target.RowVersion,
             TranslateAttributes(createMessage.Target)),
         UpdateMessage updateMessage => EntityDelta.Update(
             updateMessage.Target.LogicalName,
             updateMessage.Target.Id,
+            updateMessage.Target.RowVersion,
             TranslateAttributes(updateMessage.Target)),
         DeleteMessage deleteMessage => EntityDelta.Delete(
             deleteMessage.Target.LogicalName,
@@ -34,7 +36,7 @@ public class MessageEntityMapper
                 var value = kvp.Value switch
                 {
                     string valueString when _datePattern.IsMatch(valueString) => ConvertDateTime(entity, attributeName),
-                    var v when v is string || v is int || v is bool || v is null => v,
+                    var v when v is string || v is int || v is long || v is bool || v is null || v is DateTime => v,
                     OptionSetValue optionSetValue => optionSetValue.Value,
                     EntityReference entityReference => new ReportingDbListener.EntityReference()
                     {
