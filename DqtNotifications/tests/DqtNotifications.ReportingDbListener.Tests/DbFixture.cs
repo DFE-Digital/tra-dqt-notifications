@@ -22,8 +22,6 @@ public class DbFixture
 
     public Task ClearData() => _respawner.ResetAsync(ConnectionString);
 
-    public Task DisposeAsync() => Task.CompletedTask;
-
     public SqlConnection GetConnection()
     {
         var conn = new SqlConnection(ConnectionString);

@@ -31,7 +31,7 @@ public class MessageProcessorTests : IDisposable
     [Theory]
     [InlineData("SampleMessages/Create.json")]
     [InlineData("SampleMessages/Update.json")]
-    //[InlineData("SampleMessages/Delete.json")]
+    [InlineData("SampleMessages/Delete.json")]
     public async Task ProcessMessage_UpdatesDbSuccessfully(string messagePath)
     {
         var messageJson = File.ReadAllText(messagePath);

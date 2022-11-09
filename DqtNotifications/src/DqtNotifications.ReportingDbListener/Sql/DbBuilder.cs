@@ -54,7 +54,14 @@ public class DbBuilder : IDbBuilder
     {
         if (entity.EntityDeltaType == EntityDeltaType.Delete)
         {
-            throw new NotImplementedException();
+            var deleteResult = await DeleteEntityRow(entity.EntityLogicalName, entity.Id, cancellationToken);
+
+            return deleteResult switch
+            {
+                DeleteEntityRowResult.Success => ApplyEntityDeltaResult.Success,
+                DeleteEntityRowResult.RowDoesNotExist => ApplyEntityDeltaResult.StaleDataError,
+                _ => throw new NotSupportedException($"Unrecognised {nameof(DeleteEntityRowResult)}: '{deleteResult}'.")
+            };
         }
         else
         {
@@ -66,12 +73,71 @@ public class DbBuilder : IDbBuilder
             {
                 UpsertEntityRowResult.Success => ApplyEntityDeltaResult.Success,
                 UpsertEntityRowResult.StaleDataError => ApplyEntityDeltaResult.StaleDataError,
+                UpsertEntityRowResult.RowIsDeleted => ApplyEntityDeltaResult.Success,
                 _ => throw new NotSupportedException($"Unrecognised {nameof(UpsertEntityRowResult)}: '{upsertResult}'.")
             };
         }
     }
 
-    public async Task<UpsertEntityRowResult> UpsertEntityRow(
+    public virtual async Task<DeleteEntityRowResult> DeleteEntityRow(
+        string tableName,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        _logger.LogDebug("Deleting row for {Id} in {TableName}", id, tableName);
+
+        var entityLogicalName = tableName;
+
+        await EnsureConnectionOpen(cancellationToken);
+
+        using var cmd = GetDeleteStatement();
+        cmd.Connection = _connection;
+
+        using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+        await reader.ReadAsync(cancellationToken);
+        var result = (DeleteEntityRowResult)reader.GetInt32(0);
+
+        if (result == DeleteEntityRowResult.Success)
+        {
+            _logger.LogDebug("Delete succeeded for {Id} in {TableName}", id, tableName);
+        }
+        else
+        {
+            _logger.LogDebug("Row does not exist for {Id} in {TableName}", id, tableName);
+        }
+
+        return result;
+
+        SqlCommand GetDeleteStatement()
+        {
+            var commandTextBuilder = new StringBuilder();
+            commandTextBuilder.AppendLine($"DECLARE @Deleted TABLE ({VersionNumberColumnName} bigint not null)");
+            commandTextBuilder.Append("DELETE FROM ");
+            commandTextBuilder.Append(QuoteName(tableName));
+            commandTextBuilder.Append($" OUTPUT deleted.{VersionNumberColumnName} INTO @Deleted");
+            commandTextBuilder.AppendLine(" WHERE [Id] = @Id");
+            commandTextBuilder.AppendLine();
+            commandTextBuilder.AppendLine("IF @@ROWCOUNT = 1");
+            commandTextBuilder.AppendLine("BEGIN");
+            commandTextBuilder.AppendLine("  INSERT INTO DeleteLog ([EntityName], [RecordId], [SinkDeleteTime], [VersionNumber])");
+            commandTextBuilder.AppendLine($"  SELECT @EntityLogicalName, @Id, @Now, {VersionNumberColumnName} FROM @Deleted");
+            commandTextBuilder.AppendLine();
+            commandTextBuilder.AppendLine("  SELECT 0 Result");
+            commandTextBuilder.AppendLine("END");
+            commandTextBuilder.AppendLine("ELSE");
+            commandTextBuilder.AppendLine("  SELECT CASE WHEN COUNT(*) > 0 THEN 0 ELSE 1 END AS Result FROM DeleteLog");
+            commandTextBuilder.AppendLine("  WHERE [EntityName] = @EntityLogicalName AND [RecordId] = @Id");
+
+            var cmd = new SqlCommand(commandTextBuilder.ToString());
+            cmd.Parameters.Add(new SqlParameter("@Id", id));
+            cmd.Parameters.Add(new SqlParameter("@Now", _clock.UtcNow));
+            cmd.Parameters.Add(new SqlParameter("@EntityLogicalName", entityLogicalName));
+
+            return cmd;
+        }
+    }
+
+    public virtual async Task<UpsertEntityRowResult> UpsertEntityRow(
         string tableName,
         Guid id,
         RowStateHint rowStateHint,
@@ -139,6 +205,11 @@ public class DbBuilder : IDbBuilder
             {
                 _logger.LogDebug("Out of order data detected for {Id} in {TableName}", id, tableName);
                 return UpsertEntityRowResult.StaleDataError;
+            }
+            else if (updateResult == UpdateRowResult.RowIsDeleted)
+            {
+                _logger.LogDebug("Skipping row update for deleted row {Id} in {TableName}", id, tableName);
+                return UpsertEntityRowResult.RowIsDeleted;
             }
             else
             {
@@ -218,6 +289,8 @@ public class DbBuilder : IDbBuilder
         ImmutableDictionary<string, object?> columnValues,
         CancellationToken cancellationToken)
     {
+        var entityLogicalName = tableName;
+
         await EnsureConnectionOpen(cancellationToken);
 
         using var cmd = GetUpdateStatement();
@@ -252,16 +325,18 @@ public class DbBuilder : IDbBuilder
             commandTextBuilder.AppendLine("  SELECT 0 AS Result");
             commandTextBuilder.AppendLine("ELSE");
             commandTextBuilder.AppendLine("  BEGIN");
-            commandTextBuilder.Append("    IF NOT EXISTS (SELECT TOP 1 1 FROM ");
+            commandTextBuilder.Append("    IF EXISTS (SELECT TOP 1 1 FROM ");
             commandTextBuilder.Append(QuoteName(tableName));
             commandTextBuilder.AppendLine(" WHERE Id = @Id)");
-            commandTextBuilder.AppendLine("      SELECT 1 AS Result");
-            commandTextBuilder.AppendLine("    ELSE");
             commandTextBuilder.AppendLine("      SELECT 2 AS Result");
+            commandTextBuilder.AppendLine("    ELSE");
+            commandTextBuilder.AppendLine("      SELECT CASE WHEN COUNT(*) > 0 THEN 3 ELSE 1 END AS Result FROM DeleteLog");
+            commandTextBuilder.AppendLine("      WHERE [EntityName] = @EntityLogicalName AND [RecordId] = @Id");
             commandTextBuilder.Append("  END");
 
             var cmd = new SqlCommand(commandTextBuilder.ToString());
             cmd.Parameters.Add(CreateParameter("@Id", id));
+            cmd.Parameters.Add(CreateParameter("@EntityLogicalName", entityLogicalName));
 
             foreach (var p in updateColumnsAndParameters)
             {
@@ -299,12 +374,20 @@ public class DbBuilder : IDbBuilder
     {
         Success = 0,
         RowDoesNotExist = 1,
-        RowVersionStale = 2
+        RowVersionStale = 2,
+        RowIsDeleted = 3
     }
 
     public enum UpsertEntityRowResult
     {
         Success = 0,
-        StaleDataError = 1
+        StaleDataError = 1,
+        RowIsDeleted = 2
+    }
+
+    public enum DeleteEntityRowResult
+    {
+        Success = 0,
+        RowDoesNotExist = 1
     }
 }

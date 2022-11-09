@@ -202,6 +202,37 @@ public class DbBuilderTests
     }
 
     [Fact]
+    public async Task UpdateRow_RowIsDeleted_ReturnsRowIsDeleted()
+    {
+        using var conn = _fixture.GetConnection();
+        var clock = new TestClock();
+        var dbBuilder = new DbBuilder(conn, clock, new NullLogger<DbBuilder>());
+
+        var entityLogicalName = "contact";
+        var tableName = "contact";
+        var id = Guid.NewGuid();
+        var initialVersion = 3L;
+
+        await conn.ExecuteAsync(
+            "insert into DeleteLog (EntityName, RecordId, SinkDeleteTime, VersionNumber) " +
+            "values (@entityLogicalName, @id, @deletedTime, @initialVersion)",
+            new { entityLogicalName, id, deletedTime = clock.UtcNow.AddHours(-1), initialVersion });
+
+        var newVersion = 2L;
+        var newFirstName = "Joe";
+        var newMiddleName = (string?)null;
+        var newLastName = "Bloggs";
+
+        var columnValues = ImmutableDictionary.Create<string, object?>()
+            .Add("FirstName", newFirstName)
+            .Add("MiddleName", newMiddleName)
+            .Add("LastName", newLastName);
+
+        var result = await dbBuilder.UpdateRow(tableName, id, newVersion, columnValues, CancellationToken.None);
+        Assert.Equal(UpdateRowResult.RowIsDeleted, result);
+    }
+
+    [Fact]
     public async Task UpsertEntityRow_NewRowHintAndRowDoesNotExist_InsertsRowAndReturnsSuccess()
     {
         using var conn = _fixture.GetConnection();
@@ -458,5 +489,250 @@ public class DbBuilderTests
 
         Assert.Contains(columnValues, kvp => kvp.Key == "owner" && kvp.Value?.Equals(ownerId) == true);
         Assert.Contains(columnValues, kvp => kvp.Key == "owner_entitytype" && kvp.Value?.Equals(ownerEntityLogicalName) == true);
+    }
+
+    [Fact]
+    public async Task DeleteRow_RowExists_DeletesRowWritesToLogAndReturnsSuccess()
+    {
+        using var conn = _fixture.GetConnection();
+        var clock = new TestClock();
+        var dbBuilder = new DbBuilder(conn, clock, new NullLogger<DbBuilder>());
+
+        var entityLogicalName = "contact";
+        var tableName = "contact";
+        var id = Guid.NewGuid();
+        var version = 3L;
+        var createdOn = clock.UtcNow.Subtract(TimeSpan.FromHours(1));
+        var firstName = Faker.Name.First();
+        var middleName = Faker.Name.Middle();
+        var lastName = Faker.Name.Last();
+
+        await conn.ExecuteAsync(
+            "insert into contact (Id, SinkCreatedOn, SinkModifiedOn, versionnumber, firstname, middlename, lastname) " +
+            "values (@id, @createdOn, @createdOn, @version, @firstName, @middleName, @lastName)",
+            new { Id = id, createdOn, version, firstName, middleName, lastName });
+
+        var result = await dbBuilder.DeleteEntityRow(tableName, id, CancellationToken.None);
+        Assert.Equal(DeleteEntityRowResult.Success, result);
+
+        var rows = await _fixture.Query("select * from contact where id = @Id", new { Id = id });
+        Assert.Empty(rows);
+
+        var log = await _fixture.Query("select * from DeleteLog where EntityName = @entityLogicalName and RecordId = @id", new { id, entityLogicalName });
+        Assert.Collection(
+            log,
+            l =>
+            {
+                Assert.Equal(version, l["VersionNumber"]);
+                Assert.Equal(clock.UtcNow, l["SinkDeleteTime"]);
+            });
+    }
+
+    [Fact]
+    public async Task DeleteRow_RowAlreadyDeleted_ReturnsSuccess()
+    {
+        using var conn = _fixture.GetConnection();
+        var clock = new TestClock();
+        var dbBuilder = new DbBuilder(conn, clock, new NullLogger<DbBuilder>());
+
+        var entityLogicalName = "contact";
+        var tableName = "contact";
+        var id = Guid.NewGuid();
+        var version = 3L;
+
+        await conn.ExecuteAsync(
+            "insert into DeleteLog (EntityName, RecordId, SinkDeleteTime, VersionNumber) " +
+            "values (@entityLogicalName, @id, @deletedTime, @version)",
+            new { entityLogicalName, id, deletedTime = clock.UtcNow.AddHours(-1), version });
+
+        var result = await dbBuilder.DeleteEntityRow(tableName, id, CancellationToken.None);
+        Assert.Equal(DeleteEntityRowResult.Success, result);
+    }
+
+    [Fact]
+    public async Task DeleteRow_RowDoesNotExist_DoesNotWriteToLogAndReturnsRowDoesNotExist()
+    {
+        using var conn = _fixture.GetConnection();
+        var clock = new TestClock();
+        var dbBuilder = new DbBuilder(conn, clock, new NullLogger<DbBuilder>());
+
+        var entityLogicalName = "contact";
+        var tableName = "contact";
+        var id = Guid.NewGuid();
+
+        var result = await dbBuilder.DeleteEntityRow(tableName, id, CancellationToken.None);
+        Assert.Equal(DeleteEntityRowResult.RowDoesNotExist, result);
+
+        var rows = await _fixture.Query("select * from contact where id = @Id", new { Id = id });
+        Assert.Empty(rows);
+
+        var log = await _fixture.Query("select * from DeleteLog where EntityName = @entityLogicalName and RecordId = @id", new { id, entityLogicalName });
+        Assert.Empty(log);
+    }
+
+    [Fact]
+    public async Task ApplyEntityDelta_DeleteReturnsSuccess_ReturnsSuccess()
+    {
+        using var conn = _fixture.GetConnection();
+        var clock = new TestClock();
+        var dbBuilderMock = new Mock<DbBuilder>(conn, clock, new NullLogger<DbBuilder>()) { CallBase = true };
+
+        var tableName = "contact";
+        var id = Guid.NewGuid();
+
+        var entityDelta = EntityDelta.Delete(tableName, id);
+
+        dbBuilderMock.Setup(mock => mock.DeleteEntityRow(tableName, id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DeleteEntityRowResult.Success)
+            .Verifiable();
+
+        var result = await dbBuilderMock.Object.ApplyEntityDelta(entityDelta, CancellationToken.None);
+        Assert.Equal(ApplyEntityDeltaResult.Success, result);
+        dbBuilderMock.Verify();
+    }
+
+    [Fact]
+    public async Task ApplyEntityDelta_DeleteReturnsRowDoesNotExist_ReturnsStaleDataError()
+    {
+        using var conn = _fixture.GetConnection();
+        var clock = new TestClock();
+        var dbBuilderMock = new Mock<DbBuilder>(conn, clock, new NullLogger<DbBuilder>()) { CallBase = true };
+
+        var tableName = "contact";
+        var id = Guid.NewGuid();
+
+        var entityDelta = EntityDelta.Delete(tableName, id);
+
+        dbBuilderMock.Setup(mock => mock.DeleteEntityRow(tableName, id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DeleteEntityRowResult.RowDoesNotExist)
+            .Verifiable();
+
+        var result = await dbBuilderMock.Object.ApplyEntityDelta(entityDelta, CancellationToken.None);
+        Assert.Equal(ApplyEntityDeltaResult.StaleDataError, result);
+        dbBuilderMock.Verify();
+    }
+
+    [Fact]
+    public async Task ApplyEntityDelta_Create_InvokesUpsertWithNewRowHint()
+    {
+        using var conn = _fixture.GetConnection();
+        var clock = new TestClock();
+        var dbBuilderMock = new Mock<DbBuilder>(conn, clock, new NullLogger<DbBuilder>()) { CallBase = true };
+
+        var tableName = "contact";
+        var id = Guid.NewGuid();
+        var version = 42L;
+
+        var attributes = new Dictionary<string, object?>()
+        {
+            { "firstname", "Joe" },
+            { "lastname", "Bloggs" }
+        };
+
+        var entityDelta = EntityDelta.Create(tableName, id, version, attributes);
+
+        var result = await dbBuilderMock.Object.ApplyEntityDelta(entityDelta, CancellationToken.None);
+        dbBuilderMock.Verify(mock => mock.UpsertEntityRow(tableName, id, RowStateHint.NewRow, It.IsAny<ImmutableDictionary<string, object?>>(), It.IsAny<CancellationToken>()));
+    }
+
+    [Fact]
+    public async Task ApplyEntityDelta_Update_InvokesUpsertWithExistingRowHint()
+    {
+        using var conn = _fixture.GetConnection();
+        var clock = new TestClock();
+        var dbBuilderMock = new Mock<DbBuilder>(conn, clock, new NullLogger<DbBuilder>()) { CallBase = true };
+
+        var tableName = "contact";
+        var id = Guid.NewGuid();
+        var version = 42L;
+
+        var attributes = new Dictionary<string, object?>()
+        {
+            { "firstname", "Joe" },
+            { "lastname", "Bloggs" }
+        };
+
+        var entityDelta = EntityDelta.Update(tableName, id, version, attributes);
+
+        var result = await dbBuilderMock.Object.ApplyEntityDelta(entityDelta, CancellationToken.None);
+        dbBuilderMock.Verify(mock => mock.UpsertEntityRow(tableName, id, RowStateHint.ExistingRow, It.IsAny<ImmutableDictionary<string, object?>>(), It.IsAny<CancellationToken>()));
+    }
+
+    [Fact]
+    public async Task ApplyEntityDelta_UpsertReturnsSuccess_ReturnsSuccess()
+    {
+        using var conn = _fixture.GetConnection();
+        var clock = new TestClock();
+        var dbBuilderMock = new Mock<DbBuilder>(conn, clock, new NullLogger<DbBuilder>()) { CallBase = true };
+
+        var tableName = "contact";
+        var id = Guid.NewGuid();
+        var version = 42L;
+
+        var attributes = new Dictionary<string, object?>()
+        {
+            { "firstname", "Joe" },
+            { "lastname", "Bloggs" }
+        };
+
+        var entityDelta = EntityDelta.Update(tableName, id, version, attributes);
+
+        dbBuilderMock.Setup(mock => mock.UpsertEntityRow(tableName, id, RowStateHint.ExistingRow, It.IsAny<ImmutableDictionary<string, object?>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(UpsertEntityRowResult.Success);
+
+        var result = await dbBuilderMock.Object.ApplyEntityDelta(entityDelta, CancellationToken.None);
+        Assert.Equal(ApplyEntityDeltaResult.Success, result);
+    }
+
+    [Fact]
+    public async Task ApplyEntityDelta_UpsertReturnsStaleDataError_ReturnsStaleDataError()
+    {
+        using var conn = _fixture.GetConnection();
+        var clock = new TestClock();
+        var dbBuilderMock = new Mock<DbBuilder>(conn, clock, new NullLogger<DbBuilder>()) { CallBase = true };
+
+        var tableName = "contact";
+        var id = Guid.NewGuid();
+        var version = 42L;
+
+        var attributes = new Dictionary<string, object?>()
+        {
+            { "firstname", "Joe" },
+            { "lastname", "Bloggs" }
+        };
+
+        var entityDelta = EntityDelta.Update(tableName, id, version, attributes);
+
+        dbBuilderMock.Setup(mock => mock.UpsertEntityRow(tableName, id, RowStateHint.ExistingRow, It.IsAny<ImmutableDictionary<string, object?>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(UpsertEntityRowResult.StaleDataError);
+
+        var result = await dbBuilderMock.Object.ApplyEntityDelta(entityDelta, CancellationToken.None);
+        Assert.Equal(ApplyEntityDeltaResult.StaleDataError, result);
+    }
+
+    [Fact]
+    public async Task ApplyEntityDelta_UpsertReturnsRowIsDeleted_ReturnsSuccess()
+    {
+        using var conn = _fixture.GetConnection();
+        var clock = new TestClock();
+        var dbBuilderMock = new Mock<DbBuilder>(conn, clock, new NullLogger<DbBuilder>()) { CallBase = true };
+
+        var tableName = "contact";
+        var id = Guid.NewGuid();
+        var version = 42L;
+
+        var attributes = new Dictionary<string, object?>()
+        {
+            { "firstname", "Joe" },
+            { "lastname", "Bloggs" }
+        };
+
+        var entityDelta = EntityDelta.Update(tableName, id, version, attributes);
+
+        dbBuilderMock.Setup(mock => mock.UpsertEntityRow(tableName, id, RowStateHint.ExistingRow, It.IsAny<ImmutableDictionary<string, object?>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(UpsertEntityRowResult.RowIsDeleted);
+
+        var result = await dbBuilderMock.Object.ApplyEntityDelta(entityDelta, CancellationToken.None);
+        Assert.Equal(ApplyEntityDeltaResult.Success, result);
     }
 }
