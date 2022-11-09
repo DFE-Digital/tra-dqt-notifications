@@ -445,7 +445,11 @@ public class DbBuilderTests : IClassFixture<DbFixture>
             {
                 {
                     "owner",
-                    new EntityReference(ownerEntityLogicalName, ownerId)
+                    new EntityReference()
+                    {
+                        EntityLogicalName = ownerEntityLogicalName,
+                        Id = ownerId
+                    }
                 }
             });
 

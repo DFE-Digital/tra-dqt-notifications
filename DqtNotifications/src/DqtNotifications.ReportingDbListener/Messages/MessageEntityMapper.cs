@@ -36,7 +36,11 @@ public class MessageEntityMapper
                     string valueString when _datePattern.IsMatch(valueString) => ConvertDateTime(entity, attributeName),
                     var v when v is string || v is int || v is bool || v is null => v,
                     OptionSetValue optionSetValue => optionSetValue.Value,
-                    EntityReference entityReference => new ReportingDbListener.EntityReference(entityReference.LogicalName, entityReference.Id),
+                    EntityReference entityReference => new ReportingDbListener.EntityReference()
+                    {
+                        EntityLogicalName = entityReference.LogicalName,
+                        Id = entityReference.Id
+                    },
                     _ => throw new NotSupportedException($"Unsupported type: '{kvp.Value.GetType().FullName}' for attribute '{attributeName}'.")
                 };
 

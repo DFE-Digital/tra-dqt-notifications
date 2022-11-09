@@ -2,10 +2,11 @@ using Newtonsoft.Json;
 
 namespace DqtNotifications.ReportingDbListener.Messages;
 
-[Message("Update")]
-public class UpdateMessage : IMessage
+public record UpdateMessage : IMessage
 {
-    public IReadOnlyDictionary<string, object> InputParameters { get; set; } = default!;
+    public static string MessageType => "Update";
+
+    public required IReadOnlyDictionary<string, object> InputParameters { get; init; }
 
     [JsonIgnore]
     public Entity Target => (Entity)InputParameters["Target"]!;
