@@ -2,10 +2,11 @@ using Newtonsoft.Json;
 
 namespace DqtNotifications.ReportingDbListener.Messages;
 
-[Message("Delete")]
-public class DeleteMessage : IMessage
+public record DeleteMessage : IMessage
 {
-    public IReadOnlyDictionary<string, object> InputParameters { get; set; } = default!;
+    public static string MessageType => "Delete";
+
+    public required IReadOnlyDictionary<string, object> InputParameters { get; init; }
 
     [JsonIgnore]
     public EntityReference Target => (EntityReference)InputParameters["Target"];

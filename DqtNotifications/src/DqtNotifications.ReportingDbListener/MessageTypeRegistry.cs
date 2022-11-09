@@ -19,9 +19,8 @@ public class MessageTypeRegistry
 
         var messageTypes = from type in Assembly.GetExecutingAssembly().GetTypes()
                            where type.Namespace == messagesNamespace && type.IsPublic && !type.IsAbstract && type.IsAssignableTo(messageInterfaceType)
-                           let messageAttr = type.GetCustomAttribute<MessageAttribute>()
-                           where messageAttr is not null
-                           select (messageAttr.MessageName, MessageType: type);
+                           let messageType = (string)type.GetProperty(nameof(IMessage.MessageType), BindingFlags.Public | BindingFlags.Static)!.GetGetMethod()!.Invoke(null, null)!
+                           select (messageType, MessageType: type);
 
         return new MessageTypeRegistry(messageTypes);
     }

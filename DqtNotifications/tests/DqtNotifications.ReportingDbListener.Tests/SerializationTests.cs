@@ -14,7 +14,7 @@ public class SerializationTests
 
         var message = File.ReadAllText("SampleMessages/Create.json");
 
-        var result = JsonConvert.DeserializeObject<IMessage>(message, serializerSettings);
+        var result = (IMessage)JsonConvert.DeserializeObject(message, typeof(IMessage), serializerSettings);
         var createMessage = Assert.IsType<CreateMessage>(result);
 
         var target = createMessage.Target;
@@ -37,7 +37,7 @@ public class SerializationTests
 
         var message = File.ReadAllText("SampleMessages/Update.json");
 
-        var result = JsonConvert.DeserializeObject<IMessage>(message, serializerSettings);
+        var result = (IMessage)JsonConvert.DeserializeObject(message, typeof(IMessage), serializerSettings);
         var updateMessage = Assert.IsType<UpdateMessage>(result);
 
         var target = updateMessage.Target;
@@ -57,7 +57,7 @@ public class SerializationTests
 
         var message = File.ReadAllText("SampleMessages/Delete.json");
 
-        var result = JsonConvert.DeserializeObject<IMessage>(message, serializerSettings);
+        var result = (IMessage)JsonConvert.DeserializeObject(message, typeof(IMessage), serializerSettings);
         var deleteMessage = Assert.IsType<DeleteMessage>(result);
 
         var target = deleteMessage.Target;

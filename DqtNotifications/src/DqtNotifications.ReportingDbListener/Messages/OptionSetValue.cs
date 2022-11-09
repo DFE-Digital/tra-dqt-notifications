@@ -1,6 +1,6 @@
 namespace DqtNotifications.ReportingDbListener.Messages;
 
-public class OptionSetValue
+public record OptionSetValue
 {
-    public int Value { get; set; }
+    public required int Value { get; init; }
 }

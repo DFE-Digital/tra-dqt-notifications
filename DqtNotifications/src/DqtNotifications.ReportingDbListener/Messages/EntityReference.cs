@@ -1,7 +1,7 @@
 namespace DqtNotifications.ReportingDbListener.Messages;
 
-public class EntityReference
+public record EntityReference
 {
-    public Guid Id { get; set; }
-    public string LogicalName { get; set; } = default!;
+    public required Guid Id { get; init; }
+    public required string LogicalName { get; init; }
 }
