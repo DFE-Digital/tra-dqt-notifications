@@ -72,6 +72,10 @@ variable "function_app_name" {
 
 }
 
+variable "storage_account_name" {
+  type = string
+}
+
 variable "zone_redundant" {
   type        = bool
   default     = false
