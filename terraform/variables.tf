@@ -88,19 +88,6 @@ variable "data_protection_container_delete_retention_days" {
   type    = number
 }
 
-
-variable "sql_administrator_login" {
-  description = "The Administrator Login for the PostgreSQL Server. Changing this forces a new resource to be created."
-  type        = string
-  default = "psqladmin"
-}
-
-variable "administrator_password" {
-  description = "The Password associated with the administrator_login for the PostgreSQL Server."
-  type        = string
-  default = "Password1234"
-}
-
 locals {
   hosting_environment       = var.environment_name
   servicebus_namespace_name = "${var.namespace_prefix}dqtnoti-${var.environment_name}-sbn"
