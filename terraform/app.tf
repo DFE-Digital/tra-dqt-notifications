@@ -16,7 +16,7 @@ resource "azurerm_app_service_plan" "app_service_plan" {
     tier = "Standard"
     size = "S1"
   }
-  
+
   lifecycle {
     ignore_changes = [
       tags
@@ -65,7 +65,7 @@ resource "azurerm_servicebus_namespace_authorization_rule" "send_listen_auth_rul
   send   = true
 }
 
-# Servicebus Topic
+# Servicebus Topics
 resource "azurerm_servicebus_topic" "servicebus_topic" {
   name         = local.servicebus_topic_name
   namespace_id = azurerm_servicebus_namespace.servicebus_namespace.id
