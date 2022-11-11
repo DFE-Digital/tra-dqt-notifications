@@ -32,11 +32,11 @@ jobs:
         #https://github.com/dotnet/format/issues/1433
         dotnet tool install -g dotnet-format --version "7.*" --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet6/nuget/v3/index.json
         dotnet-format --verify-no-changes
-      working-directory: DqtNotifications
+      working-directory: terraform
 
     - name: Build
       run: dotnet build --configuration Release
-      working-directory: DqtNotifications
+      working-directory: terraform
 
   deploy:
     name: Deploy to ${{ matrix.environment }} environment
@@ -60,6 +60,6 @@ jobs:
       - uses: ./.github/actions/deploy-environment
         id: deploy
         with:
-          app_root: DqtNotifications
+          app_root: terraform
           azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
           environment_name: ${{ matrix.environment }}
