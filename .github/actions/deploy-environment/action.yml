@@ -69,7 +69,7 @@ runs:
       with:
         creds: ${{ inputs.azure_credentials }}
 
-    ##TO DO: decide whether these resources will be shared or app specific, shared probably best
+    
     - id: deploy-arm-resources
       run: |
         make ci ${{ inputs.environment_name }} deploy-azure-resources
