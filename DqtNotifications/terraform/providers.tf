@@ -1,5 +1,8 @@
+
+
 locals {
   azure_credentials      = try(jsondecode(var.azure_sp_credentials_json), null)
+ 
   }
 
 provider "azurerm" {

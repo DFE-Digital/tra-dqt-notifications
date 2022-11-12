@@ -1,3 +1,4 @@
+
 variable "project" {
   default     = ""
   description = "Project name (required for Premium SKU) - sds or cft. "
@@ -19,11 +20,13 @@ variable "namespace_prefix" {
 variable "topic_prefix" {
   type    = string
   default = ""
-  }
+  
+}
 
 variable "storage_account" {
   type    = string
   default = ""
+
 }
 
 variable "key_vault_name" {
@@ -44,6 +47,7 @@ variable "resource_group_name" {
 type        = string
 }
 
+
 variable "sku" {
   type        = string
   default     = "Standard"
@@ -54,6 +58,12 @@ variable "capacity" {
   type        = number
   default     = 0
   description = "Specifies the capacity. Defaults to 1 when using Premium SKU."
+}
+
+variable "storage_container_name" {
+  type    = string
+  default = ""
+
 }
 
 variable "function_app_name" {
@@ -88,11 +98,54 @@ variable "data_protection_container_delete_retention_days" {
   type    = number
 }
 
+variable "postgres_server_name" {
+  type    = string
+  default = ""
+
+}
+variable "postgres_flexible_server_sku" {
+  type    = string
+  default = "B_Standard_B1ms"
+}
+
+variable "postgres_flexible_server_storage_mb" {
+  type    = number
+  default = 32768
+}
+
+variable "enable_postgres_high_availability" {
+  type    = bool
+  default = false
+}
+
+variable "postgres_database_name" {
+  type    = string
+  default = ""
+
+}
+
+variable "administrator_login" {
+  description = "The Administrator Login for the PostgreSQL Server. Changing this forces a new resource to be created."
+  type        = string
+  default = "psqladmin"
+}
+
+variable "administrator_password" {
+  description = "The Password associated with the administrator_login for the PostgreSQL Server."
+  type        = string
+  default = "Password1234"
+}
+
+
 locals {
   hosting_environment       = var.environment_name
   servicebus_namespace_name = "${var.namespace_prefix}dqtnoti-${var.environment_name}-sbn"
   servicebus_topic_name     = "${var.topic_prefix}dqtnoti-${var.environment_name}-sbt"
   storage_account           = "${var.storage_account}dqtnoti${var.environment_name}sg"
+  storage_container_name    = "${var.storage_container_name}dqtnoti-${var.environment_name}-sck"
   app_service_plan_name     = "${var.plan_prefix}dqtnoti-${var.environment_name}-spl"
   azurerm_function_app_name = "${var.function_app_name}dqtnoti-${var.environment_name}-fapp"
+  postgres_server_name      = "${var.postgres_server_name}dqtnoti-${var.environment_name}-psn"
+  postgres_database_name    = "${var.postgres_database_name}dqtnoti-${var.environment_name}-pdb"
 }
+

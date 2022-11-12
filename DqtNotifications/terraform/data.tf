@@ -1,10 +1,11 @@
-data "azurerm_resource_group" "resource_group" {
+data "azurerm_resource_group" "rgsb" {
     name = var.resource_group_name
+
 }
 
 data "azurerm_key_vault" "vault" {
   name                = var.key_vault_name
-  resource_group_name = data.azurerm_resource_group.resource_group.name
+  resource_group_name = data.azurerm_resource_group.rgsb.name
 }
 
 data "azurerm_key_vault_secrets" "secrets" {
