@@ -10,14 +10,3 @@ output "administrator_password" {
   value     = var.administrator_password
   sensitive = true
 }
-
-
-/*output "name" {
-  value = azurerm_servicebus_namespace.servicebus_namespace.name
-}
-
-
-output "id" {
-  value = azurerm_servicebus_namespace.servicebus_namespace.id
-}
-*/
