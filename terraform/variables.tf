@@ -8,7 +8,7 @@ variable "environment_name" {
 }
 
 variable "resource_prefix"{
-  type = string
+  type    = string
   default = ""
 }
 variable "namespace_prefix" {
@@ -16,9 +16,29 @@ variable "namespace_prefix" {
   default = ""
 }
 
+variable "mssql_prefix" {
+  type    = string
+  default = ""
+}
+
 variable "topic_prefix" {
   type    = string
   default = ""
+  }
+
+variable "app_service_plan_sku_tier {
+  type    = string
+  default = "Basic"
+}
+
+variable "app_service_plan_sku_size" {
+  type    = string
+  default = "B1"
+  }
+
+  variable "worker_count" {
+    type    = number
+    default = null
   }
 
 variable "storage_account" {
@@ -59,7 +79,6 @@ variable "capacity" {
 variable "function_app_name" {
   type    = string
   default = ""
-
 }
 
 variable "storage_account_name" {
@@ -88,24 +107,26 @@ variable "data_protection_container_delete_retention_days" {
   type    = number
 }
 
-
-variable "sql_administrator_login" {
-  description = "The Administrator Login for the PostgreSQL Server. Changing this forces a new resource to be created."
+variable "mssql_administrator_login" {
+  description = "The Administrator Login for the MSSQL Server."
   type        = string
-  default = "psqladmin"
+  default     = ""
 }
 
-variable "administrator_password" {
-  description = "The Password associated with the administrator_login for the PostgreSQL Server."
+variable "mssql_server_admin_password" {
+  description = "The Password associated for the MSSQL server."
   type        = string
-  default = "Password1234"
+  default     = ""
+  sensitive   = true
 }
 
 locals {
-  hosting_environment       = var.environment_name
-  servicebus_namespace_name = "${var.namespace_prefix}dqtnoti-${var.environment_name}-sbn"
-  servicebus_topic_name     = "${var.topic_prefix}dqtnoti-${var.environment_name}-sbt"
-  storage_account           = "${var.storage_account}dqtnoti${var.environment_name}sg"
-  app_service_plan_name     = "${var.plan_prefix}dqtnoti-${var.environment_name}-spl"
-  azurerm_function_app_name = "${var.function_app_name}dqtnoti-${var.environment_name}-fapp"
+  hosting_environment         = var.environment_name
+  servicebus_namespace_name   = "${var.namespace_prefix}dqtnoti-${var.environment_name}-sbn"
+  servicebus_topic_name       = "${var.topic_prefix}dqtnoti-${var.environment_name}-sbt"
+  storage_account             = "${var.storage_account}dqtnoti${var.environment_name}sg"
+  app_service_plan_name       = "${var.plan_prefix}dqtnoti-${var.environment_name}-spl"
+  azurerm_function_app_name   = "${var.function_app_name}dqtnoti-${var.environment_name}-fapp"
+  mssql_server                = "${var.mssql_prefix}dqtnoti-${var.environment_name}-mssql
+  mssql_server_admin_password = local.mssql_server_admin_password
 }
