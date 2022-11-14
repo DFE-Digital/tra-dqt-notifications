@@ -16,7 +16,7 @@ variable "namespace_prefix" {
   default = ""
 }
 
-variable "mssql_prefix" {
+variable "mssql_server" {
   type    = string
   default = ""
 }
@@ -26,7 +26,7 @@ variable "topic_prefix" {
   default = ""
   }
 
-variable "app_service_plan_sku_tier {
+variable "app_service_plan_sku_tier" {
   type    = string
   default = "Basic"
 }
@@ -36,12 +36,7 @@ variable "app_service_plan_sku_size" {
   default = "B1"
   }
 
-  variable "worker_count" {
-    type    = number
-    default = null
-  }
-
-variable "storage_account" {
+  variable "storage_account" {
   type    = string
   default = ""
 }
@@ -73,7 +68,7 @@ variable "sku" {
 variable "capacity" {
   type        = number
   default     = 0
-  description = "Specifies the capacity. Defaults to 1 when using Premium SKU."
+  description = "Specifies the capacity"
 }
 
 variable "function_app_name" {
@@ -107,17 +102,34 @@ variable "data_protection_container_delete_retention_days" {
   type    = number
 }
 
-variable "mssql_administrator_login" {
+variable "administrator_login" {
   description = "The Administrator Login for the MSSQL Server."
+  type        = string
+  default     = "MSsqladm"
+}
+
+variable "administrator_login_password" {
+  description = "The Password associated for the MSSQL server."
+  type        = string
+  default     = "Testing456"
+  sensitive   = true
+}
+
+variable "mssql_max_size_gb" {
+  description = "The max size of the database in gigabytes"
+  type        = number
+  default     = 2
+}
+
+variable "mssql_database" {
+  description = "The name of the MSSQL database to create. Must be set if `enable_mssql_database` is true"
   type        = string
   default     = ""
 }
-
-variable "mssql_server_admin_password" {
-  description = "The Password associated for the MSSQL server."
+variable "mssql_sku_name" {
+  description = "Specifies the name of the SKU used by the database"
   type        = string
-  default     = ""
-  sensitive   = true
+  default     = "Basic"
 }
 
 locals {
@@ -127,6 +139,8 @@ locals {
   storage_account             = "${var.storage_account}dqtnoti${var.environment_name}sg"
   app_service_plan_name       = "${var.plan_prefix}dqtnoti-${var.environment_name}-spl"
   azurerm_function_app_name   = "${var.function_app_name}dqtnoti-${var.environment_name}-fapp"
-  mssql_server                = "${var.mssql_prefix}dqtnoti-${var.environment_name}-mssql
-  mssql_server_admin_password = local.mssql_server_admin_password
+  mssql_server                = "${var.mssql_server}dqtnoti-${var.environment_name}-mssql"
+  mssql_max_size_gb           = var.mssql_max_size_gb
+  mssql_sku_name              = var.mssql_sku_name
+  mssql_database              = "${var.mssql_database}dqtnoti-${var.environment_name}-sqldb"
 }

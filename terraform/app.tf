@@ -1,7 +1,7 @@
 locals {
   auth_rule_name = "SendAndListenSharedAccessKey"
   sku            = var.enable_private_endpoint == true ? "Standard" : var.sku
-  capacity       = local.sku == "Standard" && var.capacity <= 0 ? 1 : var.capacity
+  capacity       = local.sku == "Standard" && var.capacity <= 0 ? var.capacity : 1
        }
 
 # App Service Plan
@@ -9,9 +9,8 @@ resource "azurerm_app_service_plan" "app_service_plan" {
   name                   = local.app_service_plan_name
   location               = data.azurerm_resource_group.resource_group.location
   resource_group_name    = data.azurerm_resource_group.resource_group.name
-  os_type                = "Linux"
-  zone_balancing_enabled = var.worker_count != null ? true : false
-  worker_count           = var.worker_count
+  kind                   = "Linux"
+  reserved               = true
 
   sku {
     tier = var.app_service_plan_sku_tier
@@ -98,27 +97,21 @@ resource "azurerm_storage_account" "st" {
   }
 }
 
-resource "azurerm_mssql_server" "default" {
-  name                          = local.mssql_prefix
-  resource_group_name           = data.azurerm_resource_group.resource_group.name
-  location                      = data.azurerm_resource_group.resource_group.location
-  version                       = "12.0"
-  administrator_login           = var.mssql_administrator_login
-  administrator_password        = local.mssql_server_admin_password
-  public_network_access_enabled = false
-  minimum_tls_version           = "1.2"
-
-  lifecycle {
-    ignore_changes = [
-      tags
-    ]
-  }
+#MSSQL Server
+resource "azurerm_mssql_server" "mssql_server" {
+  name                         = local.mssql_server
+  resource_group_name          = data.azurerm_resource_group.resource_group.name
+  location                     = data.azurerm_resource_group.resource_group.location
+  version                      = "12.0"
+  administrator_login          = var.administrator_login
+  administrator_login_password = var.administrator_login_password
 }
 
-resource "azurerm_mssql_database" "default" {
-  name        = local.mssql_database_name
-  server_id   = azurerm_mssql_server.default[0].id
+#MSSQL Database
+resource "azurerm_mssql_database" "mssql_database" {
+  name        = local.mssql_database
+  server_id   = azurerm_mssql_server.mssql_server.id
   collation   = "SQL_Latin1_General_CP1_CI_AS"
   sku_name    = local.mssql_sku_name
   max_size_gb = local.mssql_max_size_gb
- }
+}
