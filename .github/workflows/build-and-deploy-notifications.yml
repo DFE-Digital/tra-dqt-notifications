@@ -5,7 +5,6 @@ on:
     branches:
     - main
     - deploy-resources-dev
-
   pull_request:
     branches:
     - main
