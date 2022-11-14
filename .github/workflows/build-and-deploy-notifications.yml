@@ -20,6 +20,25 @@ jobs:
     name: Build & test
     runs-on: ubuntu-latest
 
+    env:
+      SQL_DB: DqtReports
+      SQL_PASSWORD: SuperS3cretPassw0rd
+
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: ${{ env.SQL_PASSWORD }}
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools/bin/sqlcmd -U sa -P $SA_PASSWORD -Q 'select 1' -b -o /dev/null"
+          --health-interval 60s
+          --health-timeout 30s
+          --health-start-period 20s
+          --health-retries 3
+
     steps:
     - uses: actions/checkout@v3
 
@@ -30,36 +49,21 @@ jobs:
     - name: Lint
       run: |
         #https://github.com/dotnet/format/issues/1433
-        dotnet tool install -g dotnet-format --version "7.*" --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet6/nuget/v3/index.json
+        dotnet tool install -g dotnet-format --version "7.*" --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet7/nuget/v3/index.json
         dotnet-format --verify-no-changes
-      working-directory: DqtNotifications
+      working-directory: terraform
 
     - name: Build
       run: dotnet build --configuration Release
       working-directory: terraform
 
-  deploy:
-    name: Deploy to ${{ matrix.environment }} environment
-    runs-on: ubuntu-latest
-    #if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    concurrency: deploy_${{ matrix.environment }}
-    needs: [build]
-    strategy:
-      max-parallel: 1
-      matrix:
-        environment: [dev] #[dev, test, preprod, production]
-    environment:
-      name: ${{ matrix.environment }}
-      #url: ${{ steps.deploy.outputs.environment_url }}
-    #outputs:
-      #environment_url: ${{ steps.deploy.outputs.environment_url }}
+    - name: Create test database
+      run: docker exec $(docker ps --latest --quiet) /opt/mssql-tools/bin/sqlcmd -U "sa" -P "$SQL_PASSWORD" -Q "create database $SQL_DB; alter database $SQL_DB set ALLOW_SNAPSHOT_ISOLATION on;"
 
-    steps:
-      - uses: actions/checkout@v3
+    - name: Tests
+      uses: ./.github/workflows/actions/test
+      with:
+        test_project_path: DqtNotifications/tests/DqtNotifications.ReportingDbListener.Tests
+        report_name: "Test results"
+        dotnet_test_args: '-e ConnectionStrings__DefaultConnection="Data Source=(local); Initial Catalog=${{ env.SQL_DB }}; User=sa; Password=${{ env.SQL_PASSWORD }}; TrustServerCertificate=True"'
 
-      - uses: ./.github/actions/deploy-environment
-        id: deploy
-        with:
-          app_root: DqtNotifications
-          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
-          environment_name: ${{ matrix.environment }}
