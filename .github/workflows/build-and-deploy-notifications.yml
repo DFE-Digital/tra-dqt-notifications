@@ -55,7 +55,7 @@ jobs:
 
     - name: Build
       run: dotnet build --configuration Release
-      working-directory: DqtNotifications
+      working-directory: terraform
 
     - name: Create test database
       run: docker exec $(docker ps --latest --quiet) /opt/mssql-tools/bin/sqlcmd -U "sa" -P "$SQL_PASSWORD" -Q "create database $SQL_DB; alter database $SQL_DB set ALLOW_SNAPSHOT_ISOLATION on;"
