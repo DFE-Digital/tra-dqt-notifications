@@ -16,7 +16,6 @@ resource "azurerm_app_service_plan" "app_service_plan" {
     tier = var.app_service_plan_sku_tier
     size = var.app_service_plan_sku_size
   }
-
   lifecycle {
     ignore_changes = [
       tags
