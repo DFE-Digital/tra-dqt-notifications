@@ -87,6 +87,5 @@ jobs:
       - uses: ./.github/actions/deploy-environment
         id: deploy
         with:
-          app_root: DqtNotifications
           azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
           environment_name: ${{ matrix.environment }}
