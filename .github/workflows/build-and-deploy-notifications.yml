@@ -1,10 +1,9 @@
-name: Build and Deploy
+name: Build
 
 on:
   push:
     branches:
     - main
-    - deploy-resources-dev
   pull_request:
     branches:
     - main
@@ -37,7 +36,6 @@ jobs:
           --health-timeout 30s
           --health-start-period 20s
           --health-retries 3
-
     steps:
     - uses: actions/checkout@v3
 
@@ -53,7 +51,7 @@ jobs:
       working-directory: DqtNotifications
 
     - name: Build
-      run: dotnet build --configuration Release
+      run: dotnet build --configuration Release /p:NetCoreBuild=true
       working-directory: DqtNotifications
 
     - name: Create test database
@@ -65,4 +63,3 @@ jobs:
         test_project_path: DqtNotifications/tests/DqtNotifications.ReportingDbListener.Tests
         report_name: "Test results"
         dotnet_test_args: '-e ConnectionStrings__DefaultConnection="Data Source=(local); Initial Catalog=${{ env.SQL_DB }}; User=sa; Password=${{ env.SQL_PASSWORD }}; TrustServerCertificate=True"'
-

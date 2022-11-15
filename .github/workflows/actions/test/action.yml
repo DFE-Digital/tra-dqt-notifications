@@ -21,7 +21,6 @@ runs:
           echo "test_project_path must be a path to the directory containing the test project" >&2
           exit 1
         fi
-
         cd $PROJECT_PATH && dotnet test --configuration Release --logger trx ${{ inputs.dotnet_test_args }}
       shell: bash
       env:
