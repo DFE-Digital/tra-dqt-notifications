@@ -87,5 +87,6 @@ jobs:
       - uses: ./.github/actions/deploy-environment
         id: deploy
         with:
+          app_root:
           azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
           environment_name: ${{ matrix.environment }}
