@@ -37,8 +37,8 @@ production:
 	$(eval RESOURCE_NAME_PREFIX=s165p01)
 	$(eval ENV_SHORT=pd)
 	$(eval ENV_TAG=prod)
-	$(eval AZURE_BACKUP_STORAGE_ACCOUNT_NAME=s165p01dqtnotidbbackuppd)
-	$(eval AZURE_BACKUP_STORAGE_CONTAINER_NAME=dqtnoti)
+	$(eval AZURE_BACKUP_STORAGE_ACCOUNT_NAME=s165p01rsmdbbackuppd)
+	$(eval AZURE_BACKUP_STORAGE_CONTAINER_NAME=rsm)
 
 .PHONY: domain
 domain:
@@ -54,7 +54,7 @@ ci:	## Run in automation environment
 	$(eval SP_AUTH=true)
 
 set-azure-resource-group-tags: ##Tags that will be added to resource group on it's creation in ARM template
-	$(eval RG_TAGS=$(shell echo '{"Portfolio": "Early Years and Schools Group", "Parent Business":"Teaching Regulation Agency", "Product" : "DQT Notifications", "Service Line": "Teaching Workforce", "Service": "Teacher Services", "Service Offering": "DQT Notifications", "Environment" : "$(ENV_TAG)"}' | jq . ))
+	$(eval RG_TAGS=$(shell echo '{"Portfolio": "Early Years and Schools Group", "Parent Business":"Teacher Misconduct Unit", "Product" : "Refer Serious Misconduct", "Service Line": "Teaching Workforce", "Service": "Teacher Training and Qualifications", "Service Offering": "Refer Serious Misconduct", "Environment" : "$(ENV_TAG)"}' | jq . ))
 
 set-azure-template-tag:
 	$(eval ARM_TEMPLATE_TAG=0.4.0)
@@ -63,6 +63,10 @@ set-azure-template-tag:
 read-keyvault-config:
 	$(eval KEY_VAULT_NAME=$(shell jq -r '.key_vault_name' terraform/workspace_variables/$(DEPLOY_ENV).tfvars.json))
 	$(eval KEY_VAULT_SECRET_NAME=INFRASTRUCTURE)
+
+read-deployment-config:
+	$(eval POSTGRES_DATABASE_NAME="$(RESOURCE_NAME_PREFIX)-rsm-$(DEPLOY_ENV)${var.app_suffix}-psql-db")
+	$(eval POSTGRES_SERVER_NAME="$(RESOURCE_NAME_PREFIX)-rsm-$(DEPLOY_ENV)${var.app_suffix}-psql.postgres.database.azure.com")
 
 ##@ Query parameter store to display environment variables. Requires Azure credentials
 set-azure-account: ${environment}
@@ -96,34 +100,33 @@ terraform-init:
 	[[ "${SP_AUTH}" != "true" ]] && az account set -s $(AZURE_SUBSCRIPTION) || true
 	terraform -chdir=terraform init -backend-config workspace_variables/${DEPLOY_ENV}.backend.tfvars $(backend_config) -upgrade -reconfigure
 
-terraform-plan: terraform-init# make dev terraform-plan APP_ROOT=DqtNotifications
+terraform-plan: terraform-init
 	terraform -chdir=terraform plan -var-file workspace_variables/${DEPLOY_ENV}.tfvars.json
 
-terraform-apply: teraform-init# make dev terraform-apply APP_ROOT=DqtNotifications
+terraform-apply: terraform-init
 	terraform -chdir=terraform apply -var-file workspace_variables/${DEPLOY_ENV}.tfvars.json ${AUTO_APPROVE}
 
-
-terraform-destroy: terraform-init# make dev terraform-destroy APP_ROOT=DqtNotifications
+terraform-destroy: terraform-init
 	terraform -chdir=terraform destroy -var-file workspace_variables/${DEPLOY_ENV}.tfvars.json ${AUTO_APPROVE}
 
 deploy-azure-resources: set-azure-account set-azure-template-tag set-azure-resource-group-tags# make dev deploy-azure-resources AUTO_APPROVE=1
 	$(if $(AUTO_APPROVE), , $(error can only run with AUTO_APPROVE))
 	az deployment sub create -l "West Europe" --template-uri "https://raw.githubusercontent.com/DFE-Digital/tra-shared-services/${ARM_TEMPLATE_TAG}/azure/resourcedeploy.json" \
-		--parameters "resourceGroupName=${RESOURCE_NAME_PREFIX}-dqtnoti-${ENV_SHORT}-rg" 'tags=${RG_TAGS}' "environment=${DEPLOY_ENV}" \
-			"tfStorageAccountName=${RESOURCE_NAME_PREFIX}dqtnotitfstate${ENV_SHORT}" "tfStorageContainerName=dqtnoti-tfstate" \
+		--parameters "resourceGroupName=${RESOURCE_NAME_PREFIX}-rsm-${ENV_SHORT}-rg" 'tags=${RG_TAGS}' "environment=${DEPLOY_ENV}" \
+			"tfStorageAccountName=${RESOURCE_NAME_PREFIX}rsmtfstate${ENV_SHORT}" "tfStorageContainerName=rsm-tfstate" \
 			"dbBackupStorageAccountName=${AZURE_BACKUP_STORAGE_ACCOUNT_NAME}" "dbBackupStorageContainerName=${AZURE_BACKUP_STORAGE_CONTAINER_NAME}" \
-			"keyVaultName=${RESOURCE_NAME_PREFIX}-dqtnoti-${ENV_SHORT}-kv"
+			"keyVaultName=${RESOURCE_NAME_PREFIX}-rsm-${ENV_SHORT}-kv"
 
 validate-azure-resources: set-azure-account set-azure-template-tag set-azure-resource-group-tags# make dev validate-azure-resources
 	az deployment sub create -l "West Europe" --template-uri "https://raw.githubusercontent.com/DFE-Digital/tra-shared-services/${ARM_TEMPLATE_TAG}/azure/resourcedeploy.json" \
-		--parameters "resourceGroupName=${RESOURCE_NAME_PREFIX}-dqtnoti-${ENV_SHORT}-rg" 'tags=${RG_TAGS}' "environment=${DEPLOY_ENV}" \
-			"tfStorageAccountName=${RESOURCE_NAME_PREFIX}dqtnotitfstate${ENV_SHORT}" "tfStorageContainerName=dqtnoti-tfstate" \
+		--parameters "resourceGroupName=${RESOURCE_NAME_PREFIX}-rsm-${ENV_SHORT}-rg" 'tags=${RG_TAGS}' "environment=${DEPLOY_ENV}" \
+			"tfStorageAccountName=${RESOURCE_NAME_PREFIX}rsmtfstate${ENV_SHORT}" "tfStorageContainerName=rsm-tfstate" \
 			"dbBackupStorageAccountName=${AZURE_BACKUP_STORAGE_ACCOUNT_NAME}" "dbBackupStorageContainerName=${AZURE_BACKUP_STORAGE_CONTAINER_NAME}" \
-			"keyVaultName=${RESOURCE_NAME_PREFIX}-dqtnoti-${ENV_SHORT}-kv" \
+			"keyVaultName=${RESOURCE_NAME_PREFIX}-rsm-${ENV_SHORT}-kv" \
 		--what-if
 
 domain-azure-resources: set-azure-account set-azure-template-tag set-azure-resource-group-tags# make domain domain-azure-resources AUTO_APPROVE=1
 	$(if $(AUTO_APPROVE), , $(error can only run with AUTO_APPROVE))
 	az deployment sub create -l "West Europe" --template-uri "https://raw.githubusercontent.com/DFE-Digital/tra-shared-services/${ARM_TEMPLATE_TAG}/azure/resourcedeploy.json" \
-		--parameters "resourceGroupName=${RESOURCE_NAME_PREFIX}-dqtnotidomains-rg" 'tags=${RG_TAGS}' "environment=${DEPLOY_ENV}" \
-			"tfStorageAccountName=${RESOURCE_NAME_PREFIX}dqtnotidomainstf" "tfStorageContainerName=dqtnotidomains-tf"  "keyVaultName=${RESOURCE_NAME_PREFIX}-dqtnotidomains-kv"
+		--parameters "resourceGroupName=${RESOURCE_NAME_PREFIX}-rsmdomains-rg" 'tags=${RG_TAGS}' "environment=${DEPLOY_ENV}" \
+			"tfStorageAccountName=${RESOURCE_NAME_PREFIX}rsmdomainstf" "tfStorageContainerName=rsmdomains-tf"  "keyVaultName=${RESOURCE_NAME_PREFIX}-rsmdomains-kv"
