@@ -87,6 +87,6 @@ jobs:
       - uses: ./.github/actions/deploy-environment
         id: deploy
         with:
-          app_root: terraform
+          app_root: DqtNotifications/terraform
           azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
           environment_name: ${{ matrix.environment }}
