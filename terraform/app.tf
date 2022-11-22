@@ -46,19 +46,27 @@ resource "azurerm_servicebus_namespace" "servicebus_namespace" {
   }
 }
 
-# Servicebus Auth Rule
-resource "azurerm_servicebus_namespace_authorization_rule" "send_listen_auth_rule" {
-  name         = "SendAndListenSharedAccessKey"
-  namespace_id = azurerm_servicebus_namespace.servicebus_namespace.id
-  listen       = true
-  send         = true
-}
-
 # Servicebus Topic
 resource "azurerm_servicebus_topic" "servicebus_topic" {
   name                = "crm-messages"
   namespace_id        = azurerm_servicebus_namespace.servicebus_namespace.id
   enable_partitioning = true
+}
+
+resource "azurerm_servicebus_topic_authorization_rule" "dqt_sender" {
+  name     = "DqtSender"
+  topic_id = azurerm_servicebus_topic.servicebus_topic.id
+  listen   = false
+  send     = true
+  manage   = false
+}
+
+resource "azurerm_servicebus_topic_authorization_rule" "reporting_db_listener" {
+  name     = "ReportingDbListener"
+  topic_id = azurerm_servicebus_topic.servicebus_topic.id
+  listen   = true
+  send     = false
+  manage   = false
 }
 
 #Storage account
