@@ -56,7 +56,7 @@ resource "azurerm_servicebus_namespace_authorization_rule" "send_listen_auth_rul
 
 # Servicebus Topic
 resource "azurerm_servicebus_topic" "servicebus_topic" {
-  name                = local.servicebus_topic_name
+  name                = "crm-messages"
   namespace_id        = azurerm_servicebus_namespace.servicebus_namespace.id
   enable_partitioning = true
 }

@@ -58,8 +58,7 @@ variable "mssql_sku_name" {
 
 locals {
   hosting_environment       = var.environment_name
-  servicebus_namespace_name = "${var.resource_prefix}-dqtnoti-${var.environment_name}-sbn"
-  servicebus_topic_name     = "${var.resource_prefix}-dqtnoti-${var.environment_name}-sbt"
+  servicebus_namespace_name = "${var.resource_prefix}-dqtnoti-${var.environment_name}-sbns"
   storage_account           = "${var.resource_prefix}dqtnoti${var.environment_name}sg"
   app_service_plan_name     = "${var.resource_prefix}-dqtnoti-${var.environment_name}-spl"
   linux_function_app_name   = "${var.resource_prefix}-dqtnoti-${var.environment_name}-fapp"
