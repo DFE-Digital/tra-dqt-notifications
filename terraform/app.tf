@@ -22,7 +22,14 @@ resource "azurerm_linux_function_app" "function_app" {
   storage_account_name       = azurerm_storage_account.storage_account.name
   storage_account_access_key = azurerm_storage_account.storage_account.primary_access_key
 
+  connection_string {
+    name  = "ReportingDbListener"
+    type  = "ServiceBus"
+    value = replace(azurerm_servicebus_topic_authorization_rule.reporting_db_listener.primary_connection_string, ";EntityPath=${azurerm_servicebus_topic.servicebus_topic.name}", "")
+  }
+
   site_config {}
+
   lifecycle {
     ignore_changes = [
       tags
@@ -67,6 +74,16 @@ resource "azurerm_servicebus_topic_authorization_rule" "reporting_db_listener" {
   listen   = true
   send     = false
   manage   = false
+}
+
+resource "azurerm_servicebus_subscription" "reporting_db_listener" {
+  name                                 = "ReportingDbListener"
+  topic_id                             = azurerm_servicebus_topic.servicebus_topic.id
+  max_delivery_count                   = 20
+  lock_duration                        = "PT2M" # 2 minutes
+  dead_lettering_on_message_expiration = true
+  enable_batched_operations            = true
+  requires_session                     = true
 }
 
 #Storage account
