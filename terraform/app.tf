@@ -95,6 +95,12 @@ resource "azurerm_mssql_server" "mssql_server" {
   version                      = "12.0"
   administrator_login          = local.infrastructure_secrets.SQL_ADMIN_USERNAME
   administrator_login_password = local.infrastructure_secrets.SQL_ADMIN_PASSWORD
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
 
 #MSSQL Database
@@ -104,4 +110,10 @@ resource "azurerm_mssql_database" "mssql_database" {
   collation   = "SQL_Latin1_General_CP1_CI_AS"
   sku_name    = local.mssql_sku_name
   max_size_gb = local.mssql_max_size_gb
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
