@@ -64,6 +64,17 @@ jobs:
           report_name: "Test results"
           dotnet_test_args: '-e ConnectionStrings__DefaultConnection="Data Source=(local); Initial Catalog=${{ env.SQL_DB }}; User=sa; Password=${{ env.SQL_PASSWORD }}; TrustServerCertificate=True"'
 
+      - name: Package ReportingDbListener
+        run: dotnet publish --configuration Release --output ${GITHUB_WORKSPACE}/dist/ReportingDbListener src/DqtNotifications.ReportingDbListener/
+        working-directory: DqtNotifications
+
+      - name: Publish ReportingDbListener artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ReportingDbListener
+          path: dist/ReportingDbListener
+          if-no-files-found: error
+
   deploy:
     name: Deploy to ${{ matrix.environment }} environment
     runs-on: ubuntu-latest

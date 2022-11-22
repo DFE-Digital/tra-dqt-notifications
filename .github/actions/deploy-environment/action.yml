@@ -42,7 +42,6 @@ runs:
       with:
         creds: ${{ inputs.azure_credentials }}
 
-    ##TO DO: decide whether these resources will be shared or app specific, shared probably best
     - id: deploy-arm-resources
       run: |
         make ci ${{ inputs.environment_name }} deploy-azure-resources
@@ -54,6 +53,7 @@ runs:
         echo "::add-mask::$TFSTATE_CONTAINER_ACCESS_KEY"
         echo "TFSTATE_CONTAINER_ACCESS_KEY=$TFSTATE_CONTAINER_ACCESS_KEY" >> $GITHUB_ENV
       shell: bash
+
     - uses: hashicorp/setup-terraform@v2
       with:
         terraform_version: ${{ ENV.terraform_version }}
@@ -66,3 +66,18 @@ runs:
         ARM_ACCESS_KEY: ${{ env.TFSTATE_CONTAINER_ACCESS_KEY }}
         TF_VAR_azure_sp_credentials_json: ${{ inputs.azure_credentials }}
       shell: bash
+
+    - name: Download app
+      uses: actions/download-artifact@v3
+      with:
+        name: ReportingDbListener
+        path: ReportingDbListener
+
+    - run: zip -r ReportingDbListener.zip ReportingDbListener/*
+      shell: bash
+
+    - name: Deploy Function app
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+          az functionapp deploy --resource-group "${{ env.resource_group_name }}" --name s165d01-dqtnoti-dev-fapp --src-path ReportingDbListener.zip --type zip --clean true

@@ -1,0 +1,18 @@
+{
+  "generatedBy": "Microsoft.NET.Sdk.Functions.Generator-4.0.1",
+  "configurationSource": "attributes",
+  "bindings": [
+    {
+      "type": "serviceBusTrigger",
+      "connection": "ReportingDbListener",
+      "autoCompleteMessages": false,
+      "isSessionsEnabled": true,
+      "topicName": "crm-messages",
+      "subscriptionName": "ReportingDbListener",
+      "name": "message"
+    }
+  ],
+  "disabled": false,
+  "scriptFile": "../bin/DqtNotifications.ReportingDbListener.dll",
+  "entryPoint": "DqtNotifications.ReportingDbListener.ProcessCrmMessagesFunction.Run"
+}

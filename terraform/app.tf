@@ -22,13 +22,22 @@ resource "azurerm_linux_function_app" "function_app" {
   storage_account_name       = azurerm_storage_account.storage_account.name
   storage_account_access_key = azurerm_storage_account.storage_account.primary_access_key
 
+  app_settings = {
+    "ENABLE_ORYX_BUILD"              = "false"
+    "SCM_DO_BUILD_DURING_DEPLOYMENT" = "false"
+  }
+
   connection_string {
     name  = "ReportingDbListener"
     type  = "ServiceBus"
     value = replace(azurerm_servicebus_topic_authorization_rule.reporting_db_listener.primary_connection_string, ";EntityPath=${azurerm_servicebus_topic.servicebus_topic.name}", "")
   }
 
-  site_config {}
+  site_config {
+    application_stack {
+      dotnet_version = "6.0"
+    }
+  }
 
   lifecycle {
     ignore_changes = [
