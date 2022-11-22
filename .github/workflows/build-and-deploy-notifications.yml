@@ -76,9 +76,6 @@ jobs:
         environment: [dev] #[dev, test, preprod, production]
     environment:
       name: ${{ matrix.environment }}
-      url: ${{ steps.deploy.outputs.environment_url }}
-    outputs:
-      environment_url: ${{ steps.deploy.outputs.environment_url }}
 
     steps:
       - uses: actions/checkout@v3
