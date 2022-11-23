@@ -477,11 +477,7 @@ public class DbBuilderTests
             {
                 {
                     "owner",
-                    new EntityReference()
-                    {
-                        EntityLogicalName = ownerEntityLogicalName,
-                        Id = ownerId
-                    }
+                    new EntityReference(ownerEntityLogicalName, ownerId)
                 }
             });
 

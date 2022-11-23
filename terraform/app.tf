@@ -22,7 +22,23 @@ resource "azurerm_linux_function_app" "function_app" {
   storage_account_name       = azurerm_storage_account.storage_account.name
   storage_account_access_key = azurerm_storage_account.storage_account.primary_access_key
 
-  site_config {}
+  app_settings = {
+    "ENABLE_ORYX_BUILD"              = "false"
+    "SCM_DO_BUILD_DURING_DEPLOYMENT" = "false"
+  }
+
+  connection_string {
+    name  = "ReportingDbListener"
+    type  = "ServiceBus"
+    value = replace(azurerm_servicebus_topic_authorization_rule.reporting_db_listener.primary_connection_string, ";EntityPath=${azurerm_servicebus_topic.servicebus_topic.name}", "")
+  }
+
+  site_config {
+    application_stack {
+      dotnet_version = "6.0"
+    }
+  }
+
   lifecycle {
     ignore_changes = [
       tags
@@ -46,19 +62,37 @@ resource "azurerm_servicebus_namespace" "servicebus_namespace" {
   }
 }
 
-# Servicebus Auth Rule
-resource "azurerm_servicebus_namespace_authorization_rule" "send_listen_auth_rule" {
-  name         = "SendAndListenSharedAccessKey"
-  namespace_id = azurerm_servicebus_namespace.servicebus_namespace.id
-  listen       = true
-  send         = true
-}
-
 # Servicebus Topic
 resource "azurerm_servicebus_topic" "servicebus_topic" {
-  name                = local.servicebus_topic_name
+  name                = "crm-messages"
   namespace_id        = azurerm_servicebus_namespace.servicebus_namespace.id
   enable_partitioning = true
+}
+
+resource "azurerm_servicebus_topic_authorization_rule" "dqt_sender" {
+  name     = "DqtSender"
+  topic_id = azurerm_servicebus_topic.servicebus_topic.id
+  listen   = false
+  send     = true
+  manage   = false
+}
+
+resource "azurerm_servicebus_topic_authorization_rule" "reporting_db_listener" {
+  name     = "ReportingDbListener"
+  topic_id = azurerm_servicebus_topic.servicebus_topic.id
+  listen   = true
+  send     = false
+  manage   = false
+}
+
+resource "azurerm_servicebus_subscription" "reporting_db_listener" {
+  name                                 = "ReportingDbListener"
+  topic_id                             = azurerm_servicebus_topic.servicebus_topic.id
+  max_delivery_count                   = 20
+  lock_duration                        = "PT2M" # 2 minutes
+  dead_lettering_on_message_expiration = true
+  enable_batched_operations            = true
+  requires_session                     = true
 }
 
 #Storage account
@@ -95,6 +129,12 @@ resource "azurerm_mssql_server" "mssql_server" {
   version                      = "12.0"
   administrator_login          = local.infrastructure_secrets.SQL_ADMIN_USERNAME
   administrator_login_password = local.infrastructure_secrets.SQL_ADMIN_PASSWORD
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
 
 #MSSQL Database
@@ -104,4 +144,10 @@ resource "azurerm_mssql_database" "mssql_database" {
   collation   = "SQL_Latin1_General_CP1_CI_AS"
   sku_name    = local.mssql_sku_name
   max_size_gb = local.mssql_max_size_gb
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
