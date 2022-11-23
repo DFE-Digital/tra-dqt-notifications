@@ -23,7 +23,7 @@ public class MessageProcessor
 
     public async Task ProcessMessage(string messageJson, CancellationToken cancellationToken)
     {
-        var message = (IMessage)JsonConvert.DeserializeObject(messageJson, typeof(IMessage), _serializerSettings);
+        var message = JsonConvert.DeserializeObject<IMessage>(messageJson, _serializerSettings);
         var entity = _messageEntityMapper.MapMessage(message);
 
         await _dbBuilder.ApplyEntityDelta(entity, cancellationToken);
