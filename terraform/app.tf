@@ -11,7 +11,7 @@ resource "azurerm_service_plan" "app_service_plan" {
   location            = data.azurerm_resource_group.resource_group.location
   resource_group_name = data.azurerm_resource_group.resource_group.name
   os_type             = "Linux"
-  sku_name            = "B1"
+  sku_name            = var.app_service_plan_sku_size
   lifecycle {
     ignore_changes = [
       tags

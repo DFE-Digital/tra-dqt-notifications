@@ -6,10 +6,6 @@ variable "resource_prefix" {
   type    = string
   default = ""
 }
-variable "app_service_plan_sku_tier" {
-  type    = string
-  default = "Basic"
-}
 
 variable "app_service_plan_sku_size" {
   type    = string
