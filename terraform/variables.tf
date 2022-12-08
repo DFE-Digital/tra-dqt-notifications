@@ -56,6 +56,16 @@ variable "mssql_sku_name" {
   default     = "Basic"
 }
 
+variable "application_insights_daily_data_cap_gb" {
+  type    = string
+  default = "0.033"
+}
+
+variable "application_insights_retention_days" {
+  type    = number
+  default = 30
+}
+
 locals {
   hosting_environment       = var.environment_name
   servicebus_namespace_name = "${var.resource_prefix}-dqtnoti-${var.environment_name}-sbn"
@@ -65,6 +75,7 @@ locals {
   linux_function_app_name   = "${var.resource_prefix}-dqtnoti-${var.environment_name}-fapp"
   mssql_server              = "${var.resource_prefix}-dqtnoti-${var.environment_name}-mssql"
   mssql_database            = "${var.resource_prefix}-dqtnoti-${var.environment_name}-sqldb"
+  app_insights_name         = "${var.resource_prefix}-dqtnoti-${var.environment_name}-appi"
   mssql_max_size_gb         = var.mssql_max_size_gb
   mssql_sku_name            = var.mssql_sku_name
 }
