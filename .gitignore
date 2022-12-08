@@ -1,2 +1,3 @@
 .vscode
 .terraform
+bin/fetch_config.rb

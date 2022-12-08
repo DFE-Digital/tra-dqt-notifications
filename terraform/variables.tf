@@ -30,7 +30,16 @@ variable "azure_sp_credentials_json" {
   default = null
 }
 
+variable "enable_blue_green" {
+  type    = bool
+  default = false
+}
+
 variable "resource_group_name" {
+  type = string
+}
+
+variable "notify_storage_account_name" {
   type = string
 }
 
@@ -66,11 +75,16 @@ variable "application_insights_retention_days" {
   default = 30
 }
 
+variable "worker_count" {
+  description = "It should be set to a multiple of the number of availability zones in the region"
+  type        = number
+  default     = null
+}
+
 locals {
   hosting_environment       = var.environment_name
   servicebus_namespace_name = "${var.resource_prefix}-dqtnoti-${var.environment_name}-sbn"
   servicebus_topic_name     = "${var.resource_prefix}-dqtnoti-${var.environment_name}-sbt"
-  storage_account           = "${var.resource_prefix}dqtnoti${var.environment_name}sg"
   app_service_plan_name     = "${var.resource_prefix}-dqtnoti-${var.environment_name}-spl"
   linux_function_app_name   = "${var.resource_prefix}-dqtnoti-${var.environment_name}-fapp"
   mssql_server              = "${var.resource_prefix}-dqtnoti-${var.environment_name}-mssql"
