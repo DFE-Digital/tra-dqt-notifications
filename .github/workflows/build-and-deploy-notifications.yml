@@ -63,30 +63,30 @@ jobs:
           test_project_path: DqtNotifications/tests/DqtNotifications.ReportingDbListener.Tests
           report_name: "Test results"
           dotnet_test_args: '-e ConnectionStrings__DefaultConnection="Data Source=(local); Initial Catalog=${{ env.SQL_DB }}; User=sa; Password=${{ env.SQL_PASSWORD }}; TrustServerCertificate=True"'
-
-
-  deploy:
+deploy:
+    name: Deploy to ${{ matrix.environment }} environment
     runs-on: ubuntu-latest
+    concurrency: deploy_${{ matrix.environment }}
+    needs: [build]
+    strategy:
+      max-parallel: 1
+      matrix:
+        environment: [dev]
+    environment:
+      name: ${{ matrix.environment }}
+      url: ${{ steps.deploy.outputs.environment_url }}
+    outputs:
+      environment_url: ${{ steps.deploy.outputs.environment_url }}
+
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: "7.0.x"
-
-      - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
-        uses: actions/setup-dotnet@v1
-        with:
-         dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: 'Resolve Project Dependencies Using Dotnet'
-        shell: bash
-        run: |
-          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          dotnet build --configuration Release --output ./output
-          popd
+      - uses: ./.github/actions/deploy-environment
       - name: 'Run Azure Functions action'
         uses: Azure/functions-action@v1
+        id: deploy
         with:
           app-name: s165d01-dqtnoti-dev-fapp
-          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
+          environment_name: ${{ matrix.environment }}
+
