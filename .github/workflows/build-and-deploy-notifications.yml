@@ -63,6 +63,34 @@ jobs:
           test_project_path: DqtNotifications/tests/DqtNotifications.ReportingDbListener.Tests
           report_name: "Test results"
           dotnet_test_args: '-e ConnectionStrings__DefaultConnection="Data Source=(local); Initial Catalog=${{ env.SQL_DB }}; User=sa; Password=${{ env.SQL_PASSWORD }}; TrustServerCertificate=True"'
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v3
+        with:
+          name: function-app
+
+  deploy_function_app:
+    name: Deploy to ${{ matrix.environment }} environment
+    runs-on: ubuntu-latest
+    concurrency: deploy_${{ matrix.environment }}
+    needs: [build]
+    strategy:
+      max-parallel: 1
+      matrix:
+        environment: [dev]
+    environment:
+      name: ${{ matrix.environment }}
+      url: ${{ steps.deploy.outputs.environment_url }}
+    outputs:
+      environment_url: ${{ steps.deploy.outputs.environment_url }}
+
+    steps:
+      - uses: Azure/functions-action@v1
+
+      - uses: ./.github/actions/deploy-environment
+        id: deploy
+        with:
+          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
+          environment_name: ${{ matrix.environment }}
 
   deploy:
     name: Deploy to ${{ matrix.environment }} environment
