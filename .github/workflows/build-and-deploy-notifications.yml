@@ -64,50 +64,26 @@ jobs:
           report_name: "Test results"
           dotnet_test_args: '-e ConnectionStrings__DefaultConnection="Data Source=(local); Initial Catalog=${{ env.SQL_DB }}; User=sa; Password=${{ env.SQL_PASSWORD }}; TrustServerCertificate=True"'
 
-  deploy_function_app:
-    name: Deploy to ${{ matrix.environment }} environment
-    runs-on: ubuntu-latest
-    concurrency: deploy_${{ matrix.environment }}
-    needs: [build]
-    strategy:
-      max-parallel: 1
-      matrix:
-        environment: [dev]
-    environment:
-      name: ${{ matrix.environment }}
-      url: ${{ steps.deploy.outputs.environment_url }}
-    outputs:
-      environment_url: ${{ steps.deploy.outputs.environment_url }}
-
-    steps:
-      - uses: Azure/functions-action@v1
-
-      - uses: ./.github/actions/deploy-environment
-        id: deploy
-        with:
-          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
-          environment_name: ${{ matrix.environment }}
 
   deploy:
-    name: Deploy to ${{ matrix.environment }} environment
     runs-on: ubuntu-latest
-    concurrency: deploy_${{ matrix.environment }}
-    needs: [build]
-    strategy:
-      max-parallel: 1
-      matrix:
-        environment: [dev]
-    environment:
-      name: ${{ matrix.environment }}
-      url: ${{ steps.deploy.outputs.environment_url }}
-    outputs:
-      environment_url: ${{ steps.deploy.outputs.environment_url }}
-
     steps:
-      - uses: actions/checkout@v3
+    - name: 'Checkout GitHub action'
+      uses: actions/checkout@v2
 
-      - uses: ./.github/actions/deploy-environment
-        id: deploy
-        with:
-          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
-          environment_name: ${{ matrix.environment }}
+    - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: 'Resolve Project Dependencies Using Dotnet'
+      shell: bash
+      run: |
+        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+        dotnet build --configuration Release --output ./output
+        popd
+    - name: 'Run Azure Functions action'
+      uses: Azure/functions-action@v1
+      with:
+        app-name: s165d01-dqtnoti-dev-fapp
+        package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
