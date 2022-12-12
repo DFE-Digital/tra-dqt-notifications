@@ -67,7 +67,6 @@ jobs:
   deploy_function_app:
     name: Deploy to ${{ matrix.environment }} environment
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     concurrency: deploy_${{ matrix.environment }}
     needs: [build]
     strategy:
