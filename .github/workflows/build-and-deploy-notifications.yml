@@ -63,7 +63,8 @@ jobs:
           test_project_path: DqtNotifications/tests/DqtNotifications.ReportingDbListener.Tests
           report_name: "Test results"
           dotnet_test_args: '-e ConnectionStrings__DefaultConnection="Data Source=(local); Initial Catalog=${{ env.SQL_DB }}; User=sa; Password=${{ env.SQL_PASSWORD }}; TrustServerCertificate=True"'
-deploy:
+
+  deploy:
     name: Deploy to ${{ matrix.environment }} environment
     runs-on: ubuntu-latest
     concurrency: deploy_${{ matrix.environment }}
@@ -89,4 +90,3 @@ deploy:
           app-name: s165d01-dqtnoti-dev-fapp
           azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
           environment_name: ${{ matrix.environment }}
-
