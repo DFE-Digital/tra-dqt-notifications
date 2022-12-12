@@ -63,6 +63,7 @@ jobs:
           test_project_path: DqtNotifications/tests/DqtNotifications.ReportingDbListener.Tests
           report_name: "Test results"
           dotnet_test_args: '-e ConnectionStrings__DefaultConnection="Data Source=(local); Initial Catalog=${{ env.SQL_DB }}; User=sa; Password=${{ env.SQL_PASSWORD }}; TrustServerCertificate=True"'
+
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
         with:
