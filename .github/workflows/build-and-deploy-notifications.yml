@@ -70,16 +70,13 @@ jobs:
     needs: [build]
 
     steps:
-    - uses: Azure/login@v1
-      with:
-        azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
-        name: 'Run Azure Functions action'
-    - uses: Azure/functions-action@v1
-      with:
+      - name: 'Run Azure Functions action'
+      - uses: Azure/functions-action@v1
+        with:
         app-name: 'Test'
-    - uses: ./.github/actions/deploy-environment
-      id: deploy
-      with:
+      - uses: ./.github/actions/deploy-environment
+        id: deploy
+        with:
         environment_name:  ${{ matrix.environment }}
         azure_credentials: ${{secrets.AZURE_CREDENTIALS}}
 
