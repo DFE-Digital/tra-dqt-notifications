@@ -65,11 +65,11 @@ jobs:
           dotnet_test_args: '-e ConnectionStrings__DefaultConnection="Data Source=(local); Initial Catalog=${{ env.SQL_DB }}; User=sa; Password=${{ env.SQL_PASSWORD }}; TrustServerCertificate=True"'
 
   deploy_function_app:
-  name: Deploy to ${{ matrix.environment }} environment
-  runs-on: ubuntu-latest
-  needs: [build]
+    name: Deploy function app
+    runs-on: ubuntu-latest
+    needs: [build]
 
-  steps:
+    steps:
     - uses: actions/checkout@v3
       name: 'Run Azure Functions action'
     - uses: Azure/functions-action@v1
