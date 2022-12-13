@@ -71,6 +71,8 @@ jobs:
 
     steps:
     - uses: Azure/login@v1
+      with:
+        creds: ${{ inputs.azure_credentials }}
     - uses: actions/checkout@v3
       name: 'Run Azure Functions action'
     - uses: Azure/functions-action@v1
