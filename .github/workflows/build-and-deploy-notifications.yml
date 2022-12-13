@@ -65,7 +65,7 @@ jobs:
           dotnet_test_args: '-e ConnectionStrings__DefaultConnection="Data Source=(local); Initial Catalog=${{ env.SQL_DB }}; User=sa; Password=${{ env.SQL_PASSWORD }}; TrustServerCertificate=True"'
 
   deploy_function_app:
-  name: Deploy function app
+  name: Deploy to ${{ matrix.environment }} environment
   runs-on: ubuntu-latest
   needs: [build]
 
