@@ -66,3 +66,12 @@ runs:
         ARM_ACCESS_KEY: ${{ env.TFSTATE_CONTAINER_ACCESS_KEY }}
         TF_VAR_azure_sp_credentials_json: ${{ inputs.azure_credentials }}
       shell: bash
+
+    - name: Download artifact from build job
+      uses: action/download-artifact@v3
+
+    - name: "Run Azure Functions action"
+      uses: Azure/function-action@v1
+      with:
+        app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+        package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}

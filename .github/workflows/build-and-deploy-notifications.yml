@@ -85,15 +85,6 @@ jobs:
       environment_url: ${{ steps.deploy.outputs.environment_url }}
 
     steps:
-      - name: Download artifact from build job
-        uses: action/download-artifact@v3
-
-      - name: "Run Azure Functions action"
-        uses: Azure/function-action@v1
-        with:
-          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-
       - uses: actions/checkout@v3
 
       - uses: ./.github/actions/deploy-environment
@@ -101,3 +92,4 @@ jobs:
         with:
           azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
           environment_name: ${{ matrix.environment }}
+
