@@ -64,6 +64,12 @@ jobs:
           report_name: "Test results"
           dotnet_test_args: '-e ConnectionStrings__DefaultConnection="Data Source=(local); Initial Catalog=${{ env.SQL_DB }}; User=sa; Password=${{ env.SQL_PASSWORD }}; TrustServerCertificate=True"'
 
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v3
+        with:
+          name: function-app
+          path: .
+
   deploy:
     name: Deploy to ${{ matrix.environment }} environment
     runs-on: ubuntu-latest
@@ -80,6 +86,15 @@ jobs:
       environment_url: ${{ steps.deploy.outputs.environment_url }}
 
     steps:
+      - name: Download artifact from build job
+        uses: action/download-artifact@v3
+
+      - name: "Run Azure Functions action"
+        uses: Azure/function-action@v1
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+
       - uses: actions/checkout@v3
 
       - uses: ./.github/actions/deploy-environment
