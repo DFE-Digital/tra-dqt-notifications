@@ -67,7 +67,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: function-app
-          path: /usr/share/dotnet
+          path: /usr/share/dotnet/artifact
 
 
   deploy:
