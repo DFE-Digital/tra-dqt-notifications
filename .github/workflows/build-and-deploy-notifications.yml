@@ -67,7 +67,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: function-app
-          path: ${{ inputs.test_project_path }}
+          path: ${{ .test_project_path }}
 
 
   deploy:
