@@ -66,8 +66,9 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: function-app ${{ matrix.node-version }}
-          path: ${{ github.workspace }}
+          name: function-app
+          path: .
+
 
   deploy:
     name: Deploy to ${{ matrix.environment }} environment
