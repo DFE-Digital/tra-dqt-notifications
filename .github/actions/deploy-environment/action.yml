@@ -69,4 +69,5 @@ runs:
 
     - uses: actions/download-artifact@v3
       with:
-        name: function-app
+        name: function-app ${{ matrix.node-version }}
+        path: ${{ github.workspace }}
