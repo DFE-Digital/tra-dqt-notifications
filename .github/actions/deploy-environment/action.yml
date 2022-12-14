@@ -67,5 +67,4 @@ runs:
         TF_VAR_azure_sp_credentials_json: ${{ inputs.azure_credentials }}
       shell: bash
 
-    - name: Download artifact from build job
-      uses: action/download-artifact@v3
+    - uses: action/download-artifact@v3
