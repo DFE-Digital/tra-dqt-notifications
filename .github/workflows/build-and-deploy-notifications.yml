@@ -67,7 +67,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: function-app
-          path: path/to/artifact/
+          path: .
 
   deploy:
     name: Deploy to ${{ matrix.environment }} environment
@@ -92,4 +92,3 @@ jobs:
         with:
           azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
           environment_name: ${{ matrix.environment }}
-
