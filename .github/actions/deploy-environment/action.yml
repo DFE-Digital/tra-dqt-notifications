@@ -76,7 +76,7 @@ runs:
     - uses: actions/download-artifact@v3
       with:
         name: function-app
-        path: ${{ github.workspace }}/download
+        path: ${{ github.workspace }}/artifact
 
     - uses: Azure/functions-action@v1
       with:
