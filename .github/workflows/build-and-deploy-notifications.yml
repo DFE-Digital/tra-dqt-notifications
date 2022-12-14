@@ -65,10 +65,14 @@ jobs:
           dotnet_test_args: '-e ConnectionStrings__DefaultConnection="Data Source=(local); Initial Catalog=${{ env.SQL_DB }}; User=sa; Password=${{ env.SQL_PASSWORD }}; TrustServerCertificate=True"'
 
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
+        uses: actions/checkout@v2
+        run: mkdir -p path/to/artifact
+      - run: echo functionapp > path/to/artifact/function.txt
+
+      - uses: actions/upload-artifact@v3
         with:
           name: function-app
-          path: .
+          path: path/to/artifact/function.txt
 
   deploy:
     name: Deploy to ${{ matrix.environment }} environment
