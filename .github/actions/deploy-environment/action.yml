@@ -69,9 +69,3 @@ runs:
 
     - name: Download artifact from build job
       uses: action/download-artifact@v3
-
-    - name: "Run Azure Functions action"
-      uses: Azure/function-action@v1
-      with:
-        app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-        package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
