@@ -68,7 +68,9 @@ jobs:
         with:
           name: function-app ${{ matrix.node-version }}
           path: ${{ github.workspace }}
-          run: echo ${{steps.download.outputs.download-path}}
+
+      - name: 'Echo download path'
+        run: echo ${{steps.download.outputs.download-path}}
 
   deploy:
     name: Deploy to ${{ matrix.environment }} environment
