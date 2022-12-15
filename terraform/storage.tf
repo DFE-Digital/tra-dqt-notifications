@@ -3,7 +3,7 @@ resource "azurerm_storage_account" "notify" {
   resource_group_name               = data.azurerm_resource_group.resource_group.name
   location                          = data.azurerm_resource_group.resource_group.location
   account_tier                      = "Standard"
-  account_replication_type          = var.environment_name != "dev" ? "LRS" : "GRS"
+  account_replication_type          = var.environment_name != "production" ? "LRS" : "GRS"
   account_kind                      = "StorageV2"
   min_tls_version                   = "TLS1_2"
   infrastructure_encryption_enabled = true
