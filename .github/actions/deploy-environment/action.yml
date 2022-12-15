@@ -81,4 +81,4 @@ runs:
     - uses: Azure/functions-action@v1
       with:
         app-name: ${{ env.functionapp_name }}
-        package: ${{ github.workspace }}/download
+        package: ${{ github.workspace }}/artifact
