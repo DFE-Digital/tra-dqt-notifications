@@ -62,7 +62,23 @@ runs:
     - id: terraform
       run: |
         make ci ${{ inputs.environment_name }} terraform-apply
+         cd terraform
+        OUTPUTS=($(terraform output --json | jq -r 'keys | @sh' | tr -d \'))
+        for o in "${OUTPUTS[@]}"
+        do
+          echo "${o}=$(terraform output -raw ${o})" >> $GITHUB_ENV
+        done
       env:
         ARM_ACCESS_KEY: ${{ env.TFSTATE_CONTAINER_ACCESS_KEY }}
         TF_VAR_azure_sp_credentials_json: ${{ inputs.azure_credentials }}
       shell: bash
+
+    - uses: actions/download-artifact@v3
+      with:
+        name: function-app
+        path: ${{ github.workspace }}/artifact
+
+    - uses: Azure/functions-action@v1
+      with:
+        app-name: ${{ env.functionapp_name }}
+        package: ${{ github.workspace }}/artifact

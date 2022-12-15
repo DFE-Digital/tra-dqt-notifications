@@ -399,4 +399,4 @@ FodyWeavers.xsd
 
 .idea
 
-src/DqtReporting.ConfigureSolution/Properties/launchSettings.json
+local.settings.json
