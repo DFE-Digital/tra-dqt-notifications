@@ -76,6 +76,14 @@ resource "azurerm_mssql_server" "mssql_server" {
   administrator_login_password = local.infrastructure_secrets.SQL_ADMIN_PASSWORD
 }
 
+resource "azurerm_sql_firewall_rule" "sql_fw-rule-azure" {
+  name                = "AllowAzure"
+  resource_group_name = data.azurerm_resource_group.resource_group.name
+  server_id           = azurerm_sql_firewall_rule.mssql_server.id
+  start_ip_address    = "0.0.0.0"
+  end_ip_address      = "0.0.0.0"
+}
+
 resource "azurerm_mssql_database" "mssql_database" {
   name        = local.mssql_database
   server_id   = azurerm_mssql_server.mssql_server.id
