@@ -83,8 +83,7 @@ variable "worker_count" {
 
 locals {
   hosting_environment       = var.environment_name
-  servicebus_namespace_name = "${var.resource_prefix}-dqtnoti-${var.environment_name}-sbn"
-  servicebus_topic_name     = "${var.resource_prefix}-dqtnoti-${var.environment_name}-sbt"
+  servicebus_namespace_name = "${var.resource_prefix}-dqtnoti-${var.environment_name}-sbns"
   app_service_plan_name     = "${var.resource_prefix}-dqtnoti-${var.environment_name}-spl"
   linux_function_app_name   = "${var.resource_prefix}-dqtnoti-${var.environment_name}-fapp"
   mssql_server              = "${var.resource_prefix}-dqtnoti-${var.environment_name}-mssql"
