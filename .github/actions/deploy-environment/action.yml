@@ -73,12 +73,17 @@ runs:
         TF_VAR_azure_sp_credentials_json: ${{ inputs.azure_credentials }}
       shell: bash
 
-    - uses: actions/download-artifact@v3
+    - name: Download app
+      uses: actions/download-artifact@v3
       with:
-        name: function-app
-        path: ${{ github.workspace }}/artifact
+        name: ReportingDbListener
+        path: ReportingDbListener
 
-    - uses: Azure/functions-action@v1
+    - run: zip -r ReportingDbListener.zip ReportingDbListener/*
+      shell: bash
+
+    - name: Deploy Function app
+      uses: azure/CLI@v1
       with:
-        app-name: ${{ env.functionapp_name }}
-        package: ${{ github.workspace }}/artifact
+        inlineScript: |
+          az functionapp deploy --resource-group "${{ env.resource_group_name }}" --name s165d01-dqtnoti-dev-fapp --src-path ReportingDbListener.zip --type zip --clean true
