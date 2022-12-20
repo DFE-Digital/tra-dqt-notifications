@@ -80,4 +80,4 @@ runs:
       uses: azure/CLI@v1
       with:
         inlineScript: |
-          az webapp deploy --resource-group "${{ env.resource_group_name }}" --name s165d01-dqtnoti-dev-fapp --src-path ReportingDbListener.zip --type zip --clean true
+          az functionapp deploy --resource-group s165d01-dqtnoti-dv-rg --name s165d01-dqtnoti-dev-fapp --src-path ReportingDbListener.zip --type zip --clean true
